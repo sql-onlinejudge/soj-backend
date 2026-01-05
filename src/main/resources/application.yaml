@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3308}/${MYSQL_DATABASE:soj}?useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:soj}
+    password: ${MYSQL_PASSWORD:soj123}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6378}
+
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME:root}:${MONGODB_PASSWORD:root}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DATABASE:soj}?authSource=admin
+
+    elasticsearch:
+      uris: http://${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9200}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+# Sandbox MySQL
+sandbox:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${SANDBOX_MYSQL_HOST:localhost}:${SANDBOX_MYSQL_PORT:3307}/${SANDBOX_MYSQL_DATABASE:sandbox}?useSSL=false&allowPublicKeyRetrieval=true
+    username: ${SANDBOX_MYSQL_USERNAME:root}
+    password: ${SANDBOX_MYSQL_PASSWORD:sandbox}
+
+# Sentry
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SPRING_PROFILES_ACTIVE:local}
+  traces-sample-rate: 1.0
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    root: INFO
+    me.suhyun.soj: DEBUG
+    org.jetbrains.exposed: DEBUG

@@ -1,0 +1,115 @@
+# docker-compose.yml
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: soj-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-soj}
+      MYSQL_USER: ${MYSQL_USERNAME:-soj}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-soj123}
+    ports:
+      - "${MYSQL_PORT:-3308}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: soj-redis
+    ports:
+      - "${REDIS_PORT:-6378}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7
+    container_name: soj-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-root}
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: elasticsearch:8.12.0
+    container_name: soj-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: soj-kafka
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Sandbox MySQL
+  mysql-sandbox:
+    image: mysql:8.0
+    container_name: soj-mysql-sandbox
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SANDBOX_MYSQL_PASSWORD:-sandbox}
+      MYSQL_DATABASE: ${SANDBOX_MYSQL_DATABASE:-sandbox}
+    ports:
+      - "3309:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+  redis_data:
+  mongo_data:
+  es_data:
+  kafka_data:
