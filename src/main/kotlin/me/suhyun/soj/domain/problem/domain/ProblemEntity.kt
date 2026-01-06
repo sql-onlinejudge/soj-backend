@@ -13,7 +13,7 @@ class ProblemEntity(id: EntityID<Long>) : LongEntity(id) {
     var difficulty by ProblemTable.difficulty
     var solvedCount by ProblemTable.solvedCount
     var submissionCount by ProblemTable.submissionCount
-    var createdAt by ProblemTable.created_at
-    var updatedAt by ProblemTable.updated_at
-    var deletedAt by ProblemTable.deleted_at
+    var createdAt by ProblemTable.createdAt
+    var updatedAt by ProblemTable.updatedAt
+    var deletedAt by ProblemTable.deletedAt
 }

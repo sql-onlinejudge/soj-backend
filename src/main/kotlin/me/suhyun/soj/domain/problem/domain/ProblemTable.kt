@@ -1,17 +1,13 @@
 package me.suhyun.soj.domain.problem.domain
 
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.javatime.datetime
+import me.suhyun.soj.global.entity.BaseTable
 
 @Suppress("MagicNumber")
-object ProblemTable : LongIdTable("problems") {
+object ProblemTable : BaseTable("problems") {
     val title = varchar("name", 128)
     val description = text("description")
     val schemaSql = text("schema_sql")
     val difficulty = integer(name = "difficulty")
     val solvedCount = integer("solved_count").default(0)
     val submissionCount = integer("submitted_count").default(0)
-    val created_at = datetime("created_at")
-    val updated_at = datetime("updated_at").nullable()
-    val deleted_at = datetime("deleted_at").nullable()
 }
