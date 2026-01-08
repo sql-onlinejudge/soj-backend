@@ -11,7 +11,6 @@ class TestCaseEntity(id: EntityID<Long>) : LongEntity(id) {
     var problem by ProblemEntity referencedOn TestCaseTable.problemId
     var initSql by TestCaseTable.initSql
     var answer by TestCaseTable.answer
-    var timeLimit by TestCaseTable.timeLimit
     var createdAt by TestCaseTable.createdAt
     var updatedAt by TestCaseTable.updatedAt
     var deletedAt by TestCaseTable.deletedAt

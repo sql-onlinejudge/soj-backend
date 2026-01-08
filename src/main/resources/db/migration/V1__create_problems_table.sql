@@ -4,6 +4,7 @@ CREATE TABLE problems (
     description TEXT NOT NULL,
     schema_sql TEXT NOT NULL,
     difficulty INT NOT NULL,
+    time_limit INT NOT NULL,
     solved_count INT NOT NULL DEFAULT 0,
     submitted_count INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

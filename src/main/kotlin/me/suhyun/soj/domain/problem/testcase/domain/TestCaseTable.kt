@@ -7,5 +7,4 @@ object TestCaseTable : BaseTable("test_cases") {
     val problemId = reference("problem_id", ProblemTable)
     val initSql = text("init_sql")
     val answer = text("answer")
-    val timeLimit = integer("time_limit")
 }

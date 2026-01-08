@@ -8,6 +8,7 @@ object ProblemTable : BaseTable("problems") {
     val description = text("description")
     val schemaSql = text("schema_sql")
     val difficulty = integer(name = "difficulty")
+    val timeLimit = integer("time_limit")
     val solvedCount = integer("solved_count").default(0)
     val submissionCount = integer("submitted_count").default(0)
 }

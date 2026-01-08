@@ -3,7 +3,6 @@ CREATE TABLE test_cases (
     problem_id BIGINT NOT NULL,
     init_sql TEXT NOT NULL,
     answer TEXT NOT NULL,
-    time_limit INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME,
     deleted_at DATETIME,
