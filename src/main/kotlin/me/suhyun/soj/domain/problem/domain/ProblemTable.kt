@@ -9,6 +9,7 @@ object ProblemTable : BaseTable("problems") {
     val schemaSql = text("schema_sql")
     val difficulty = integer(name = "difficulty")
     val timeLimit = integer("time_limit")
+    val isOrderSensitive = bool("is_order_sensitive").default(false)
     val solvedCount = integer("solved_count").default(0)
     val submissionCount = integer("submitted_count").default(0)
 }

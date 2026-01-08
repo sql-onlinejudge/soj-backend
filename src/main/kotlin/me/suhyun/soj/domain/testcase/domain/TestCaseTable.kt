@@ -1,4 +1,4 @@
-package me.suhyun.soj.domain.problem.testcase.domain
+package me.suhyun.soj.domain.testcase.domain
 
 import me.suhyun.soj.domain.problem.domain.ProblemTable
 import me.suhyun.soj.global.entity.BaseTable

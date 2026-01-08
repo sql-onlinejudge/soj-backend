@@ -5,6 +5,7 @@ CREATE TABLE problems (
     schema_sql TEXT NOT NULL,
     difficulty INT NOT NULL,
     time_limit INT NOT NULL,
+    is_order_sensitive BOOLEAN NOT NULL DEFAULT FALSE,
     solved_count INT NOT NULL DEFAULT 0,
     submitted_count INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

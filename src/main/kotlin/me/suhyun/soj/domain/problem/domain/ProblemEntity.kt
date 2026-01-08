@@ -12,6 +12,7 @@ class ProblemEntity(id: EntityID<Long>) : LongEntity(id) {
     var schemaSql by ProblemTable.schemaSql
     var difficulty by ProblemTable.difficulty
     var timeLimit by ProblemTable.timeLimit
+    var isOrderSensitive by ProblemTable.isOrderSensitive
     var solvedCount by ProblemTable.solvedCount
     var submissionCount by ProblemTable.submissionCount
     var createdAt by ProblemTable.createdAt
