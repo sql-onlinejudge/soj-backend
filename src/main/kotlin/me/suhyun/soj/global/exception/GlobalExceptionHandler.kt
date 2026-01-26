@@ -21,6 +21,6 @@ class GlobalExceptionHandler {
             .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
         return ResponseEntity
             .badRequest()
-            .body(ErrorResponse(code = "VALIDATION_ERROR", message = message))
+            .body(ErrorResponse(httpStatus = 400, code = "VALIDATION_ERROR", message = message))
     }
 }
