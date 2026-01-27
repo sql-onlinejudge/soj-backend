@@ -4,8 +4,9 @@ CREATE TABLE test_cases (
     init_sql TEXT NOT NULL,
     answer TEXT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME,
+    updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME,
     INDEX idx_problem_id (problem_id),
+    INDEX idx_deleted_at (deleted_at),
     CONSTRAINT fk_test_cases_problem FOREIGN KEY (problem_id) REFERENCES problems(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
