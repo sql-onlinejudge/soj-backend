@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
+import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -20,11 +21,14 @@ class SubmissionServiceFindAllByProblemIdTest {
     @Mock
     private lateinit var submissionRepository: SubmissionRepository
 
+    @Mock
+    private lateinit var eventPublisher: ApplicationEventPublisher
+
     private lateinit var submissionService: SubmissionService
 
     @BeforeEach
     fun setUp() {
-        submissionService = SubmissionService(submissionRepository)
+        submissionService = SubmissionService(submissionRepository, eventPublisher)
     }
 
     private fun createSubmission(
