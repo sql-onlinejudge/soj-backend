@@ -51,8 +51,8 @@ services:
       timeout: 5s
       retries: 5
 
-  elasticsearch:
-    image: elasticsearch:8.12.0
+  soj-elasticsearch:
+    image: elasticsearch:9.2.0
     container_name: soj-elasticsearch
     environment:
       - discovery.type=single-node
@@ -62,25 +62,65 @@ services:
       - "${ELASTICSEARCH_PORT:-9200}:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
+    networks:
+      - elk-network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  soj-logstash:
+    image: docker.elastic.co/logstash/logstash:9.2.0
+    container_name: soj-logstash
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5044:5044"   # Beats input
+      - "5001:5000"   # TCP input
+      - "9600:9600"   # Monitoring API
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+    networks:
+      - elk-network
+    depends_on:
+      soj-elasticsearch:
+        condition: service_healthy
+
+  soj-kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.0
+    container_name: soj-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://soj-elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - XPACK_SECURITY_ENABLED=false
+    ports:
+      - "5601:5601"
+    networks:
+      - elk-network
+    depends_on:
+      soj-elasticsearch:
+        condition: service_healthy
+
   kafka:
     image: apache/kafka:3.7.0
     container_name: soj-kafka
     environment:
-      - KAFKA_CFG_NODE_ID=0
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_NODE_ID: "0"
+      KAFKA_PROCESS_ROLES: "controller,broker"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      CLUSTER_ID: "5L6g3nShT-eMCtK--X86sw"
     ports:
-      - "9092:9092"
+      - "29092:29092"
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
@@ -113,3 +153,7 @@ volumes:
   mongo_data:
   es_data:
   kafka_data:
+
+networks:
+  elk-network:
+    driver: bridge
