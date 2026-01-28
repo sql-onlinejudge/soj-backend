@@ -71,6 +71,10 @@ class GradingService(
         submissionRepository.updateStatus(submissionId, SubmissionStatus.COMPLETED, verdict)
         sseEmitterService.send(submissionId, SubmissionStatus.COMPLETED, verdict)
 
+        if (verdict == SubmissionVerdict.ACCEPTED) {
+            problemRepository.incrementSolvedCount(submission.problemId)
+        }
+
         return verdict
     }
 }

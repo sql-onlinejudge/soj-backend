@@ -23,6 +23,11 @@ class QueryExecutor(
             val future = executor.submit<String> {
                 dataSource.connection.use { connection ->
                     connection.createStatement().use { statement ->
+                        val tableNames = extractTableNames(schemaSql)
+                        tableNames.forEach { tableName ->
+                            statement.execute("DROP TABLE IF EXISTS $tableName")
+                        }
+
                         statement.execute(schemaSql)
 
                         initSql?.let { statement.execute(it) }
@@ -44,6 +49,11 @@ class QueryExecutor(
         } finally {
             executor.shutdownNow()
         }
+    }
+
+    private fun extractTableNames(schemaSql: String): List<String> {
+        val regex = Regex("""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)""", RegexOption.IGNORE_CASE)
+        return regex.findAll(schemaSql).map { it.groupValues[1] }.toList()
     }
 
     private fun resultSetToString(resultSet: ResultSet): String {

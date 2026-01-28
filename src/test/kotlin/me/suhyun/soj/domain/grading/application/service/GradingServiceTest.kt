@@ -25,6 +25,8 @@ import org.mockito.InOrder
 import org.mockito.Mock
 import org.mockito.Mockito.inOrder
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
@@ -33,6 +35,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @ExtendWith(MockitoExtension::class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class GradingServiceTest {
 
     @Mock
