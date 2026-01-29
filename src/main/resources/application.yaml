@@ -61,6 +61,9 @@ logging:
     org.jetbrains.exposed: DEBUG
 
 notification:
+  routing:
+    submission: ${NOTIFICATION_ROUTING_SUBMISSION:discord}
   discord:
-    enabled: true
-    webhook-url: ${DISCORD_WEBHOOK_URL}
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+  slack:
+    webhook-url: ${SLACK_WEBHOOK_URL:}
