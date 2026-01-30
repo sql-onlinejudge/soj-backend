@@ -30,8 +30,8 @@ sandbox:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     jdbc-url: jdbc:mysql://${SANDBOX_MYSQL_HOST:localhost}:${SANDBOX_MYSQL_PORT:3309}/${SANDBOX_MYSQL_DATABASE:sandbox}?useSSL=false&allowPublicKeyRetrieval=true
-    username: ${SANDBOX_MYSQL_USERNAME:root}
-    password: ${SANDBOX_MYSQL_PASSWORD:sandbox}
+    username: ${SANDBOX_MYSQL_USERNAME:sandbox_readonly}
+    password: ${SANDBOX_MYSQL_PASSWORD:sandbox_readonly}
 
 # Sentry
 sentry:
