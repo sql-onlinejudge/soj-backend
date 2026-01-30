@@ -12,5 +12,6 @@ data class TableMetadata(
 data class ColumnMetadata(
     val name: String,
     val type: String,
+    val nullable: Boolean = true,
     val constraints: List<String> = emptyList()
 )

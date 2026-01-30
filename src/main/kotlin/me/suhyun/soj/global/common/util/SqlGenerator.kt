@@ -9,10 +9,11 @@ object SqlGenerator {
     fun generateSchema(metadata: SchemaMetadata): String {
         return metadata.tables.joinToString("\n") { table ->
             val columns = table.columns.joinToString(", ") { col ->
+                val notNull = if (!col.nullable) " NOT NULL" else ""
                 val constraints = if (col.constraints.isNotEmpty()) {
                     " " + col.constraints.joinToString(" ")
                 } else ""
-                "${col.name} ${col.type}$constraints"
+                "${col.name} ${col.type}$notNull$constraints"
             }
             "CREATE TABLE ${table.name} ($columns);"
         }
