@@ -138,6 +138,8 @@ services:
       MYSQL_DATABASE: ${SANDBOX_MYSQL_DATABASE:-sandbox}
     ports:
       - "3309:3306"
+    volumes:
+      - ./docker/sandbox/init.sql:/docker-entrypoint-initdb.d/init.sql
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
