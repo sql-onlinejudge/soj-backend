@@ -59,9 +59,9 @@ class ProblemController(
     @GetMapping("/{problemId}")
     fun findById(
         @PathVariable problemId: Long,
-        @RequestHeader("X-User-Id") userId: String?,
+        @RequestHeader(value = "X-User-Id", required = false) userId: String?,
     ): ProblemDetailResponse {
-        return problemService.findById(problemId, UUID.fromString(userId))
+        return problemService.findById(problemId, userId?.let { UUID.fromString(it) })
     }
 
     @PatchMapping("/{problemId}")

@@ -60,6 +60,11 @@ logging:
     me.suhyun.soj: DEBUG
     org.jetbrains.exposed: DEBUG
 
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-here-minimum-32-characters-required}
+  access-token-validity: 3600000
+  refresh-token-validity: 604800000
+
 notification:
   routing:
     submission: ${NOTIFICATION_ROUTING_SUBMISSION:discord}
