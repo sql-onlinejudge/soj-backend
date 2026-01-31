@@ -13,8 +13,8 @@ spring:
     mongodb:
       uri: mongodb://${MONGODB_USERNAME:root}:${MONGODB_PASSWORD:root}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DATABASE:soj}?authSource=admin
 
-    elasticsearch:
-      uris: http://${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9200}
+  elasticsearch:
+    uris: http://${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9200}
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
