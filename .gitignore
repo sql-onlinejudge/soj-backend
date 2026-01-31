@@ -44,3 +44,5 @@ out/
 .env.local
 .env.*.local
 .env.prod
+
+seed_data.sql
