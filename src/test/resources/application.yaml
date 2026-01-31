@@ -1,0 +1,67 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    jdbc-url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password:
+
+  data:
+    redis:
+      repositories:
+        enabled: false
+    mongodb:
+      uri: mongodb://localhost:27017/test
+      auto-index-creation: false
+
+  elasticsearch:
+    uris: http://localhost:9200
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-startup: false
+    listener:
+      auto-startup: false
+
+  flyway:
+    enabled: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+sandbox:
+  datasource:
+    driver-class-name: org.h2.Driver
+    jdbc-url: jdbc:h2:mem:sandbox;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password:
+
+sentry:
+  dsn:
+
+jwt:
+  secret: test-secret-key-for-testing-purposes-only-minimum-32-chars
+  access-token-validity: 3600000
+  refresh-token-validity: 604800000
+
+notification:
+  routing:
+    submission: none
+    error: none
+  discord:
+    webhook-url:
+    error-webhook-url:
+
+logging:
+  level:
+    root: WARN
+    me.suhyun.soj: DEBUG

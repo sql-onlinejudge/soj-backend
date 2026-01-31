@@ -1,5 +1,6 @@
 package me.suhyun.soj.global.infrastructure.redis.config
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,6 +14,7 @@ import java.time.Duration
 
 @Configuration
 @EnableCaching
+@ConditionalOnBean(RedisConnectionFactory::class)
 class RedisConfig {
 
     @Bean
