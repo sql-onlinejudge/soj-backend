@@ -5,6 +5,8 @@ import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.global.infrastructure.cache.CacheService
+import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,13 +29,19 @@ class ProblemServiceFindAllTest {
     @Mock
     private lateinit var submissionRepository: SubmissionRepository
 
+    @Mock
+    private lateinit var cacheService: CacheService
+
+    @Mock
+    private lateinit var cacheProperties: CacheProperties
+
     private lateinit var problemService: ProblemService
 
     private val userId = UUID.randomUUID()
 
     @BeforeEach
     fun setUp() {
-        problemService = ProblemService(problemRepository, testCaseRepository, submissionRepository)
+        problemService = ProblemService(problemRepository, testCaseRepository, submissionRepository, cacheService, cacheProperties)
     }
 
     private fun createProblem(id: Long, title: String = "Problem $id", difficulty: Int = 3): Problem {

@@ -5,6 +5,8 @@ import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.exception.ProblemErrorCode
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.global.infrastructure.cache.CacheService
+import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
 import me.suhyun.soj.global.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -28,11 +30,17 @@ class ProblemServiceFindByIdTest {
     @Mock
     private lateinit var submissionRepository: SubmissionRepository
 
+    @Mock
+    private lateinit var cacheService: CacheService
+
+    @Mock
+    private lateinit var cacheProperties: CacheProperties
+
     private lateinit var problemService: ProblemService
 
     @BeforeEach
     fun setUp() {
-        problemService = ProblemService(problemRepository, testCaseRepository, submissionRepository)
+        problemService = ProblemService(problemRepository, testCaseRepository, submissionRepository, cacheService, cacheProperties)
     }
 
     @Test
