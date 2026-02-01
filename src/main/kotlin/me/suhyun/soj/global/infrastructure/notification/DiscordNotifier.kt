@@ -60,7 +60,7 @@ class DiscordNotifier(
         val path = args[3]
         val errorType = args[4]
         val message = args[5]
-        val stackTrace = args[6]
+        val stackTrace = args[6].let { if (it.length > 1000) it.take(990) + "\n..." else it }
         return mapOf(
             "title" to NotificationType.ERROR.title,
             "color" to NotificationType.ERROR.color,
