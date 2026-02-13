@@ -71,7 +71,8 @@ class TestCaseServiceCreateTest {
         val problemId = 1L
         val request = CreateTestCaseRequest(
             initData = testInitData,
-            answerData = testAnswerData
+            answerData = testAnswerData,
+            isVisible = true
         )
 
         whenever(problemRepository.findById(problemId)).thenReturn(createProblem(problemId))
@@ -100,7 +101,8 @@ class TestCaseServiceCreateTest {
         val problemId = 1L
         val request = CreateTestCaseRequest(
             initData = null,
-            answerData = testAnswerData
+            answerData = testAnswerData,
+            isVisible = true
         )
 
         whenever(problemRepository.findById(problemId)).thenReturn(createProblem(problemId))
@@ -128,10 +130,12 @@ class TestCaseServiceCreateTest {
         val problemId = 999L
         val request = CreateTestCaseRequest(
             initData = testInitData,
-            answerData = testAnswerData
+            answerData = testAnswerData,
+            isVisible = true
         )
 
         whenever(problemRepository.findById(problemId)).thenReturn(null)
+
 
         assertThatThrownBy { testCaseService.create(problemId, request) }
             .isInstanceOf(BusinessException::class.java)

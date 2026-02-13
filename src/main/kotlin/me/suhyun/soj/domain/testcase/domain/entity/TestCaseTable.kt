@@ -11,4 +11,5 @@ object TestCaseTable : BaseTable("test_cases") {
     val initMetadata = json<InitMetadata>("init_metadata").nullable()
     val answer = text("answer")
     val answerMetadata = json<AnswerMetadata>("answer_metadata").nullable()
+    val isVisible = bool("is_visible")
 }

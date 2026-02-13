@@ -32,7 +32,7 @@ class SecurityConfig(
     private val jwtAccessDeniedHandler: JwtAccessDeniedHandler,
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val oAuth2LoginSuccessHandler: OAuth2LoginSuccessHandler,
-    @Value("\${cors.allowed-origins:http://localhost:3000}") private val allowedOrigins: String
+    @Value("\${cors.allowed-origins}") private val allowedOrigins: String
 ) {
 
     @Bean

@@ -20,6 +20,7 @@ class TestCaseRepositoryImpl : TestCaseRepository {
             this.initMetadata = testCase.initMetadata
             this.answer = testCase.answer
             this.answerMetadata = testCase.answerMetadata
+            this.isVisible = testCase.isVisible ?: true
             this.createdAt = LocalDateTime.now()
         }
         return TestCase.from(entity)
@@ -31,10 +32,12 @@ class TestCaseRepositoryImpl : TestCaseRepository {
             ?.let { TestCase.from(it) }
     }
 
-    override fun findAllByProblemId(problemId: Long): List<TestCase> {
-        return TestCaseTable.selectAll()
+    override fun findAllByProblemId(problemId: Long, isVisible: Boolean?): List<TestCase> {
+        val query = TestCaseTable.selectAll()
             .andWhere { TestCaseTable.deletedAt.isNull() }
             .andWhere { TestCaseTable.problemId eq problemId }
+        isVisible?.let { query.andWhere { TestCaseTable.isVisible eq it } }
+        return query
             .map { TestCaseEntity.wrapRow(it) }
             .map { TestCase.from(it) }
     }
@@ -44,7 +47,8 @@ class TestCaseRepositoryImpl : TestCaseRepository {
         initSql: String?,
         initMetadata: InitMetadata?,
         answer: String?,
-        answerMetadata: AnswerMetadata?
+        answerMetadata: AnswerMetadata?,
+        isVisible: Boolean?
     ): TestCase? {
         val entity = TestCaseEntity.findById(id)
             ?.takeIf { it.deletedAt == null }
@@ -58,6 +62,7 @@ class TestCaseRepositoryImpl : TestCaseRepository {
             entity.answer = it
             entity.answerMetadata = answerMetadata
         }
+        isVisible?.let { entity.isVisible = it }
         entity.updatedAt = LocalDateTime.now()
 
         return TestCase.from(entity)

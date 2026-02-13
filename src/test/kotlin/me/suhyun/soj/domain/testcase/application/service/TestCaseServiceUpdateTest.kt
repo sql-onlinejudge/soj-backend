@@ -75,7 +75,7 @@ class TestCaseServiceUpdateTest {
 
         testCaseService.update(problemId, testcaseId, request)
 
-        verify(testCaseRepository).update(eq(testcaseId), any(), eq(request.initData), any(), eq(request.answerData))
+        verify(testCaseRepository).update(eq(testcaseId), any(), eq(request.initData), any(), eq(request.answerData), eq(request.isVisible))
     }
 
     @Test
@@ -91,7 +91,7 @@ class TestCaseServiceUpdateTest {
 
         testCaseService.update(problemId, testcaseId, request)
 
-        verify(testCaseRepository).update(eq(testcaseId), any(), eq(testInitData), eq(null), eq(null))
+        verify(testCaseRepository).update(eq(testcaseId), any(), eq(testInitData), eq(null), eq(null), eq(null))
     }
 
     @Test
@@ -107,7 +107,7 @@ class TestCaseServiceUpdateTest {
 
         testCaseService.update(problemId, testcaseId, request)
 
-        verify(testCaseRepository).update(eq(testcaseId), eq(null), eq(null), any(), eq(testAnswerData))
+        verify(testCaseRepository).update(eq(testcaseId), eq(null), eq(null), any(), eq(testAnswerData), eq(null))
     }
 
     @Test

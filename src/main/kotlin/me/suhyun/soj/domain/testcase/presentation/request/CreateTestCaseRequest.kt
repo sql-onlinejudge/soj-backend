@@ -8,5 +8,7 @@ data class CreateTestCaseRequest(
     val initData: InitMetadata?,
 
     @field:NotNull
-    val answerData: AnswerMetadata
+    val answerData: AnswerMetadata,
+
+    val isVisible: Boolean,
 )

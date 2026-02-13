@@ -24,8 +24,11 @@ class TestCaseController(
     }
 
     @GetMapping
-    fun findAll(@PathVariable problemId: Long): List<TestCaseResponse> {
-        return testCaseService.findAll(problemId)
+    fun findAll(
+        @PathVariable problemId: Long,
+        @RequestParam(defaultValue = "true") isVisible: Boolean?
+    ): List<TestCaseResponse> {
+        return testCaseService.findAll(problemId, isVisible)
     }
 
     @GetMapping("/{testcaseId}")

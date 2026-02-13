@@ -12,6 +12,7 @@ data class TestCaseResponse(
     val initMetadata: InitMetadata?,
     val answer: String,
     val answerMetadata: AnswerMetadata?,
+    val isVisible: Boolean,
     val createdAt: LocalDateTime
 ) {
     companion object {
@@ -23,6 +24,7 @@ data class TestCaseResponse(
                 initMetadata = testCase.initMetadata,
                 answer = testCase.answer,
                 answerMetadata = testCase.answerMetadata,
+                isVisible = testCase.isVisible ?: true,
                 createdAt = testCase.createdAt
             )
         }

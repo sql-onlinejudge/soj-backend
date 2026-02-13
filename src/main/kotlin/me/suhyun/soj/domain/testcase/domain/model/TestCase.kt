@@ -10,6 +10,7 @@ data class TestCase(
     val initMetadata: InitMetadata?,
     val answer: String,
     val answerMetadata: AnswerMetadata?,
+    val isVisible: Boolean? = true,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime?,
     val deletedAt: LocalDateTime?
@@ -22,6 +23,7 @@ data class TestCase(
             initMetadata = entity.initMetadata,
             answer = entity.answer,
             answerMetadata = entity.answerMetadata,
+            isVisible = entity.isVisible,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
             deletedAt = entity.deletedAt

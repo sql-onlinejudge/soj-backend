@@ -80,7 +80,7 @@ class ProblemServiceCreateTest {
             timeLimit = 1000,
             isOrderSensitive = false,
             testcases = listOf(
-                CreateTestCaseRequest(initData = testInitData, answerData = testAnswerData)
+                CreateTestCaseRequest(initData = testInitData, answerData = testAnswerData, isVisible = true)
             )
         )
 
@@ -124,9 +124,9 @@ class ProblemServiceCreateTest {
     @Test
     fun `should save all testcases when creating problem`() {
         val testcases = listOf(
-            CreateTestCaseRequest(initData = testInitData, answerData = testAnswerData),
-            CreateTestCaseRequest(initData = testInitData, answerData = testAnswerData),
-            CreateTestCaseRequest(initData = null, answerData = testAnswerData)
+            CreateTestCaseRequest(initData = testInitData, answerData = testAnswerData, isVisible = true),
+            CreateTestCaseRequest(initData = testInitData, answerData = testAnswerData, isVisible = true),
+            CreateTestCaseRequest(initData = null, answerData = testAnswerData, isVisible = true)
         )
 
         val request = CreateProblemRequest(

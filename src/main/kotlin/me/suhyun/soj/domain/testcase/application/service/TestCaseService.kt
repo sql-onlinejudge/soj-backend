@@ -39,6 +39,7 @@ class TestCaseService(
                 initMetadata = request.initData,
                 answer = answer,
                 answerMetadata = request.answerData,
+                isVisible = request.isVisible,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
                 deletedAt = null
@@ -47,9 +48,9 @@ class TestCaseService(
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = ["testcases"], key = "#problemId")
-    fun findAll(problemId: Long): List<TestCaseResponse> {
-        return testCaseRepository.findAllByProblemId(problemId)
+    @Cacheable(value = ["testcases"], key = "#problemId + '_' + #isVisible")
+    fun findAll(problemId: Long, isVisible: Boolean? = true): List<TestCaseResponse> {
+        return testCaseRepository.findAllByProblemId(problemId, isVisible)
             .map { TestCaseResponse.from(it) }
     }
 
@@ -72,7 +73,7 @@ class TestCaseService(
         }
         val initSql = request.initData?.let { SqlGenerator.generateInit(it) }
         val answer = request.answerData?.let { SqlGenerator.generateAnswer(it) }
-        testCaseRepository.update(testcaseId, initSql, request.initData, answer, request.answerData)
+        testCaseRepository.update(testcaseId, initSql, request.initData, answer, request.answerData, request.isVisible)
     }
 
     @CacheEvict(value = ["testcases"], key = "#problemId")

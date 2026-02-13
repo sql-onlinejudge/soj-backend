@@ -5,5 +5,6 @@ import me.suhyun.soj.domain.testcase.domain.model.InitMetadata
 
 data class UpdateTestCaseRequest(
     val initData: InitMetadata?,
-    val answerData: AnswerMetadata?
+    val answerData: AnswerMetadata?,
+    val isVisible: Boolean? = null
 )
