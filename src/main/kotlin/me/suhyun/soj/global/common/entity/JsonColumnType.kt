@@ -27,6 +27,10 @@ class JsonColumnType<T : Any>(
         return objectMapper.readValue(json, klass)
     }
 
+    override fun valueToDB(value: Any?): Any? {
+        return value?.let { objectMapper.writeValueAsString(it) }
+    }
+
     override fun notNullValueToDB(value: Any): Any {
         return objectMapper.writeValueAsString(value)
     }
