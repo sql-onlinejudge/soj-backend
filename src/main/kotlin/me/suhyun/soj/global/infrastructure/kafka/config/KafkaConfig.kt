@@ -16,6 +16,7 @@ import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer
 import org.springframework.kafka.listener.DefaultErrorHandler
+import org.springframework.kafka.support.serializer.JsonSerializer
 import org.springframework.util.backoff.FixedBackOff
 
 @Configuration
@@ -25,11 +26,11 @@ class KafkaConfig(
 ) {
 
     @Bean
-    fun producerFactory(): ProducerFactory<String, String> {
+    fun producerFactory(): ProducerFactory<String, Any> {
         val config = mapOf(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to bootstrapServers,
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to JsonSerializer::class.java,
             ProducerConfig.ACKS_CONFIG to "all",
             ProducerConfig.RETRIES_CONFIG to 3,
             ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG to true
@@ -38,7 +39,7 @@ class KafkaConfig(
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, String> {
+    fun kafkaTemplate(): KafkaTemplate<String, Any> {
         return KafkaTemplate(producerFactory())
     }
 
@@ -56,7 +57,7 @@ class KafkaConfig(
 
     @Bean
     fun kafkaListenerContainerFactory(
-        kafkaTemplate: KafkaTemplate<String, String>
+        kafkaTemplate: KafkaTemplate<String, Any>
     ): ConcurrentKafkaListenerContainerFactory<String, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
         factory.consumerFactory = consumerFactory()

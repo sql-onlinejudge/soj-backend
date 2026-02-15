@@ -148,6 +148,63 @@ class ProblemRepositoryImpl : ProblemRepository {
         }
     }
 
+    override fun findByIdsWithFilters(
+        ids: List<Long>,
+        minDifficulty: Int?,
+        maxDifficulty: Int?,
+        trialStatus: TrialStatus?,
+        userId: UUID?,
+        sort: List<String>
+    ): List<Problem> {
+        if (ids.isEmpty()) return emptyList()
+
+        val query = ProblemTable.selectAll()
+            .where { (ProblemTable.id inList ids) and ProblemTable.deletedAt.isNull() }
+
+        minDifficulty?.let {
+            query.andWhere { ProblemTable.difficulty greaterEq it }
+        }
+
+        maxDifficulty?.let {
+            query.andWhere { ProblemTable.difficulty lessEq it }
+        }
+
+        if (trialStatus != null && userId != null) {
+            val userIdStr = userId.toString()
+
+            val hasSubmission = SubmissionTable.selectAll().where {
+                (SubmissionTable.problemId eq ProblemTable.id) and
+                    (SubmissionTable.userId eq userIdStr) and
+                    SubmissionTable.deletedAt.isNull()
+            }
+
+            val hasAccepted = SubmissionTable.selectAll().where {
+                (SubmissionTable.problemId eq ProblemTable.id) and
+                    (SubmissionTable.userId eq userIdStr) and
+                    (SubmissionTable.verdict eq SubmissionVerdict.ACCEPTED) and
+                    SubmissionTable.deletedAt.isNull()
+            }
+
+            when (trialStatus) {
+                TrialStatus.SOLVED -> query.andWhere { exists(hasAccepted) }
+                TrialStatus.ATTEMPTED -> query.andWhere { exists(hasSubmission) and notExists(hasAccepted) }
+                TrialStatus.NOT_ATTEMPTED -> query.andWhere { notExists(hasSubmission) }
+            }
+        }
+
+        val sortCriteria = parseSortCriteria(sort)
+        sortCriteria.forEach { (column, order) ->
+            query.orderBy(column, order)
+        }
+
+        val problemsMap = query
+            .map { ProblemEntity.wrapRow(it) }
+            .map { Problem.from(it) }
+            .associateBy { it.id }
+
+        return ids.mapNotNull { problemsMap[it] }
+    }
+
     private fun buildFilteredQuery(
         minDifficulty: Int?,
         maxDifficulty: Int?,
