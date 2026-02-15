@@ -99,8 +99,8 @@ class ProblemServiceFindAllTest {
         val problems = listOf(createProblem(1L, "SQL Basics"))
         val sort = listOf("createdAt:desc")
 
-        whenever(problemRepository.findAll(0, 10, null, null, "SQL", sort, null, userId)).thenReturn(problems)
-        whenever(problemRepository.countAll(null, null, "SQL", null, userId)).thenReturn(1L)
+        whenever(problemSearchService.search("SQL")).thenReturn(listOf(1L))
+        whenever(problemRepository.findByIdsWithFilters(listOf(1L), null, null, null, userId, sort)).thenReturn(problems)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(emptyMap())
 
         val result = problemService.findAll(0, 10, null, null, "SQL", sort, userId)
