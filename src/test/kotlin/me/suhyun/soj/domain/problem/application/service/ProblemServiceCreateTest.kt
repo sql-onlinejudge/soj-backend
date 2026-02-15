@@ -1,10 +1,12 @@
 package me.suhyun.soj.domain.problem.application.service
 
+import me.suhyun.soj.domain.problem.application.event.ProblemEventPublisher
 import me.suhyun.soj.domain.problem.domain.model.ColumnMetadata
 import me.suhyun.soj.domain.problem.domain.model.Problem
 import me.suhyun.soj.domain.problem.domain.model.SchemaMetadata
 import me.suhyun.soj.domain.problem.domain.model.TableMetadata
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
+import me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
 import me.suhyun.soj.domain.problem.presentation.request.CreateProblemRequest
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.model.AnswerMetadata
@@ -41,6 +43,12 @@ class ProblemServiceCreateTest {
     @Mock
     private lateinit var cacheService: CacheService
 
+    @Mock
+    private lateinit var problemEventPublisher: ProblemEventPublisher
+
+    @Mock
+    private lateinit var problemSearchService: ProblemSearchService
+
     private val cacheProperties = CacheProperties()
 
     private lateinit var problemService: ProblemService
@@ -67,7 +75,15 @@ class ProblemServiceCreateTest {
 
     @BeforeEach
     fun setUp() {
-        problemService = ProblemService(problemRepository, testCaseRepository, submissionRepository, cacheService, cacheProperties)
+        problemService = ProblemService(
+            problemRepository,
+            testCaseRepository,
+            submissionRepository,
+            cacheService,
+            cacheProperties,
+            problemEventPublisher,
+            problemSearchService
+        )
     }
 
     @Test
