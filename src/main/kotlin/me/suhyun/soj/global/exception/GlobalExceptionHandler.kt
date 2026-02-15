@@ -71,9 +71,16 @@ class GlobalExceptionHandler(
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleMessageNotReadable(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+        log.error("Failed to read request body", e)
+        log.error("Root cause: ${e.rootCause?.message}")
+
+        val detailedMessage = e.rootCause?.message?.let { ": $it" } ?: ""
         return ResponseEntity
             .badRequest()
-            .body(ErrorResponse(code = "INVALID_REQUEST_BODY", message = "요청 본문을 읽을 수 없습니다"))
+            .body(ErrorResponse(
+                code = "INVALID_REQUEST_BODY",
+                message = "요청 본문을 읽을 수 없습니다$detailedMessage"
+            ))
     }
 
     @ExceptionHandler(NoHandlerFoundException::class)
