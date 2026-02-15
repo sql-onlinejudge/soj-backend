@@ -1,5 +1,7 @@
 package me.suhyun.soj.domain.problem.application.service
 
+import me.suhyun.soj.domain.problem.application.event.ProblemEvent
+import me.suhyun.soj.domain.problem.application.event.ProblemEventPublisher
 import me.suhyun.soj.domain.problem.domain.model.Problem
 import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
@@ -29,7 +31,9 @@ class ProblemService(
     private val testCaseRepository: TestCaseRepository,
     private val submissionRepository: SubmissionRepository,
     private val cacheService: CacheService,
-    private val cacheProperties: CacheProperties
+    private val cacheProperties: CacheProperties,
+    private val problemEventPublisher: ProblemEventPublisher,
+    private val problemSearchService: me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
 ) {
 
     fun create(request: CreateProblemRequest) {
@@ -69,6 +73,8 @@ class ProblemService(
                 )
             )
         }
+
+        problemEventPublisher.publish(ProblemEvent.Created(savedProblem.id!!))
     }
 
     @Transactional(readOnly = true)
@@ -82,19 +88,36 @@ class ProblemService(
         userId: UUID,
         trialStatus: TrialStatus? = null
     ): PageResponse<ProblemResponse> {
-        val problems = problemRepository.findAll(
-            page = page,
-            size = size,
-            minDifficulty = minDifficulty,
-            maxDifficulty = maxDifficulty,
-            keyword = keyword,
-            sort = sort,
-            trialStatus = trialStatus,
-            userId = userId
-        )
-        val totalElements = problemRepository.countAll(
-            minDifficulty, maxDifficulty, keyword, trialStatus, userId
-        )
+        val problems: List<Problem>
+        val totalElements: Long
+
+        if (keyword != null) {
+            val allProblemIds = problemSearchService.search(keyword)
+            val filteredProblems = problemRepository.findByIdsWithFilters(
+                ids = allProblemIds,
+                minDifficulty = minDifficulty,
+                maxDifficulty = maxDifficulty,
+                trialStatus = trialStatus,
+                userId = userId,
+                sort = sort
+            )
+            totalElements = filteredProblems.size.toLong()
+            problems = filteredProblems.drop(page * size).take(size)
+        } else {
+            problems = problemRepository.findAll(
+                page = page,
+                size = size,
+                minDifficulty = minDifficulty,
+                maxDifficulty = maxDifficulty,
+                keyword = null,
+                sort = sort,
+                trialStatus = trialStatus,
+                userId = userId
+            )
+            totalElements = problemRepository.countAll(
+                minDifficulty, maxDifficulty, null, trialStatus, userId
+            )
+        }
 
         val problemIds = problems.mapNotNull { it.id }
         val trialStatuses = getTrialStatuses(problemIds, userId)
@@ -139,6 +162,7 @@ class ProblemService(
             isOrderSensitive = request.isOrderSensitive
         ) ?: throw BusinessException(ProblemErrorCode.PROBLEM_NOT_FOUND)
         cacheService.evict(CacheKeys.Problem.byId(problemId))
+        problemEventPublisher.publish(ProblemEvent.Updated(problemId))
     }
 
     fun delete(problemId: Long) {
@@ -147,6 +171,7 @@ class ProblemService(
             throw BusinessException(ProblemErrorCode.PROBLEM_NOT_FOUND)
         }
         cacheService.evict(CacheKeys.Problem.byId(problemId))
+        problemEventPublisher.publish(ProblemEvent.Deleted(problemId))
     }
 
     private fun getTrialStatuses(problemIds: List<Long>, userId: UUID): Map<Long, TrialStatus> {

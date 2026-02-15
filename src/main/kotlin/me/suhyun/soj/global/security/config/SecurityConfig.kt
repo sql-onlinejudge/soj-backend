@@ -71,6 +71,7 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 auth.requestMatchers("/admin/login").permitAll()
+                auth.requestMatchers("/admin/problems/reindex").permitAll()
                 auth.requestMatchers("/auth/logout").permitAll()
                 auth.requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 auth.requestMatchers(HttpMethod.GET, "/problems/**").permitAll()
