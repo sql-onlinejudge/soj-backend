@@ -87,6 +87,9 @@ dependencies {
 
     // WebClient
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    // Prometheus
+    implementation("io.micrometer:micrometer-registry-prometheus")
 }
 
 kotlin {

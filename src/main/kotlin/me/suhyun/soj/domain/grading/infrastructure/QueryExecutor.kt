@@ -2,6 +2,7 @@ package me.suhyun.soj.domain.grading.infrastructure
 
 import me.suhyun.soj.domain.grading.exception.QueryExecutionException
 import me.suhyun.soj.domain.grading.exception.QueryTimeoutException
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -18,6 +19,8 @@ class QueryExecutor(
     @Qualifier("sandboxReadonlyDataSource")
     private val readonlyDataSource: DataSource
 ) {
+
+    private val log = LoggerFactory.getLogger(this::class.java)
 
     fun execute(schemaSql: String, initSql: String?, query: String, timeoutMs: Int): String {
         val executor = Executors.newSingleThreadExecutor()
@@ -43,7 +46,13 @@ class QueryExecutor(
                 }
             }
 
-            return future.get(timeoutMs.toLong(), TimeUnit.MILLISECONDS)
+            val startTime = System.currentTimeMillis()
+            val result = future.get(timeoutMs.toLong(), TimeUnit.MILLISECONDS)
+            val elapsed = System.currentTimeMillis() - startTime
+            if (elapsed > 500) {
+                log.warn("Slow query detected: ${elapsed}ms")
+            }
+            return result
         } catch (e: TimeoutException) {
             throw QueryTimeoutException("Query execution timed out after ${timeoutMs}ms")
         } catch (e: Exception) {

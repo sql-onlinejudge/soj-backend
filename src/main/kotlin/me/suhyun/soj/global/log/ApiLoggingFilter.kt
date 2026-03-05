@@ -10,6 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingRequestWrapper
 import org.springframework.web.util.ContentCachingResponseWrapper
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.UUID
 
 @Component
 class ApiLoggingFilter : OncePerRequestFilter() {
@@ -23,6 +24,7 @@ class ApiLoggingFilter : OncePerRequestFilter() {
     ) {
         val wrappedRequest = ContentCachingRequestWrapper(request)
         val wrappedResponse = ContentCachingResponseWrapper(response)
+        MDC.put("traceId", UUID.randomUUID().toString())
         val startTime = System.currentTimeMillis()
 
         try {

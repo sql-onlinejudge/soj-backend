@@ -1,5 +1,8 @@
 package me.suhyun.soj.domain.grading.application.service
 
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Timer
 import me.suhyun.soj.domain.grading.exception.QueryExecutionException
 import me.suhyun.soj.domain.grading.exception.QueryTimeoutException
 import me.suhyun.soj.domain.grading.infrastructure.QueryExecutor
@@ -26,10 +29,22 @@ class GradingService(
     private val queryExecutor: QueryExecutor,
     private val queryValidator: QueryValidator,
     private val resultComparator: ResultComparator,
-    private val sseEmitterService: SseEmitterService
+    private val sseEmitterService: SseEmitterService,
+    private val meterRegistry: MeterRegistry
 ) {
 
+    private val gradingTimer = Timer.builder("grading.request.duration")
+        .publishPercentiles(0.5, 0.95, 0.99)
+        .register(meterRegistry)
+
+    private val errorCounter = Counter.builder("grading.errors")
+        .register(meterRegistry)
+
     fun grade(submissionId: Long): SubmissionVerdict {
+        return gradingTimer.recordCallable { doGrade(submissionId) }!!
+    }
+
+    private fun doGrade(submissionId: Long): SubmissionVerdict {
         val submission = submissionRepository.findById(submissionId)
             ?: throw BusinessException(SubmissionErrorCode.SUBMISSION_NOT_FOUND)
 
@@ -68,12 +83,17 @@ class GradingService(
 
             if (allPassed) SubmissionVerdict.ACCEPTED else SubmissionVerdict.WRONG_ANSWER
         } catch (e: BusinessException) {
+            errorCounter.increment()
             SubmissionVerdict.INVALID_QUERY
         } catch (e: QueryTimeoutException) {
+            errorCounter.increment()
             SubmissionVerdict.TIME_LIMIT_EXCEEDED
         } catch (e: QueryExecutionException) {
+            errorCounter.increment()
             SubmissionVerdict.RUNTIME_ERROR
         }
+
+        meterRegistry.counter("grading.verdict", "result", verdict.name).increment()
 
         submissionRepository.updateStatus(submissionId, SubmissionStatus.COMPLETED, verdict)
         sseEmitterService.send(submissionId, SubmissionStatus.COMPLETED, verdict)
