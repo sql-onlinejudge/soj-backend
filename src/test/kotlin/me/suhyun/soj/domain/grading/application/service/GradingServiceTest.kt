@@ -1,5 +1,7 @@
 package me.suhyun.soj.domain.grading.application.service
 
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import me.suhyun.soj.domain.grading.exception.GradingErrorCode
 import me.suhyun.soj.domain.grading.exception.QueryExecutionException
 import me.suhyun.soj.domain.grading.exception.QueryTimeoutException
@@ -62,6 +64,8 @@ class GradingServiceTest {
     @Mock
     private lateinit var sseEmitterService: SseEmitterService
 
+    private val meterRegistry: MeterRegistry = SimpleMeterRegistry()
+
     private lateinit var gradingService: GradingService
 
     private val submissionId = 1L
@@ -77,7 +81,8 @@ class GradingServiceTest {
             queryExecutor,
             queryValidator,
             resultComparator,
-            sseEmitterService
+            sseEmitterService,
+            meterRegistry
         )
     }
 
