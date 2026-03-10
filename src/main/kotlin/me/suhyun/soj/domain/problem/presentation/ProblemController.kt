@@ -45,7 +45,7 @@ class ProblemController(
         @RequestParam(required = false) keyword: String?,
         @RequestParam(defaultValue = "id:desc") sort: List<String>,
         @RequestParam(required = false) trialStatus: TrialStatus?,
-        @RequestHeader("X-User-Id") userId: String,
+        @RequestHeader("X-User-Id") userId: String
     ): PageResponse<ProblemResponse> {
         return problemService.findAll(
             page = page,
@@ -62,7 +62,7 @@ class ProblemController(
     @GetMapping("/{problemId}")
     fun findById(
         @PathVariable problemId: Long,
-        @RequestHeader(value = "X-User-Id", required = false) userId: String?,
+        @RequestHeader(value = "X-User-Id", required = false) userId: String?
     ): ProblemDetailResponse {
         return problemService.findById(problemId, userId?.let { UUID.fromString(it) })
     }

@@ -40,7 +40,7 @@ class WorkbookService(
         minDifficulty: Int?,
         maxDifficulty: Int?,
         keyword: String?,
-        sort: List<String>,
+        sort: List<String>
     ): PageResponse<WorkbookResponse> {
         val workbooks = workbookRepository.findAll(page, size, minDifficulty, maxDifficulty, keyword, sort)
         val totalElements = workbookRepository.countAll(minDifficulty, maxDifficulty, keyword)
@@ -48,7 +48,7 @@ class WorkbookService(
             content = workbooks.map { WorkbookResponse.from(it) },
             page = page,
             size = size,
-            totalElements = totalElements,
+            totalElements = totalElements
         )
     }
 
@@ -64,7 +64,7 @@ class WorkbookService(
             id = workbookId,
             name = request.name,
             description = request.description,
-            difficulty = request.difficulty,
+            difficulty = request.difficulty
         ) ?: throw BusinessException(WorkbookErrorCode.WORKBOOK_NOT_FOUND)
     }
 
