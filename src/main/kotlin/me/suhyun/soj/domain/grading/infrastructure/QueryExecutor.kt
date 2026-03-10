@@ -24,15 +24,14 @@ class QueryExecutor(
 
     fun execute(schemaSql: String, initSql: String?, query: String, timeoutMs: Int): String {
         val executor = Executors.newSingleThreadExecutor()
+        val schemaName = "sandbox_${Thread.currentThread().id}_${System.nanoTime()}"
 
         try {
             val future = executor.submit<String> {
                 adminDataSource.connection.use { adminConn ->
                     adminConn.createStatement().use { stmt ->
-                        val tableNames = extractTableNames(schemaSql)
-                        stmt.execute("SET FOREIGN_KEY_CHECKS=0")
-                        tableNames.forEach { stmt.execute("DROP TABLE IF EXISTS `$it`") }
-                        stmt.execute("SET FOREIGN_KEY_CHECKS=1")
+                        stmt.execute("CREATE DATABASE IF NOT EXISTS `$schemaName`")
+                        stmt.execute("USE `$schemaName`")
                         stmt.execute(schemaSql)
                         initSql?.let { stmt.execute(it) }
                     }
@@ -40,6 +39,7 @@ class QueryExecutor(
 
                 readonlyDataSource.connection.use { readonlyConn ->
                     readonlyConn.createStatement().use { stmt ->
+                        stmt.execute("USE `$schemaName`")
                         val resultSet = stmt.executeQuery(query)
                         resultSetToString(resultSet)
                     }
@@ -48,10 +48,6 @@ class QueryExecutor(
 
             val startTime = System.currentTimeMillis()
             val result = future.get(timeoutMs.toLong(), TimeUnit.MILLISECONDS)
-            val elapsed = System.currentTimeMillis() - startTime
-            if (elapsed > 500) {
-                log.warn("Slow query detected: ${elapsed}ms")
-            }
             return result
         } catch (e: TimeoutException) {
             throw QueryTimeoutException("Query execution timed out after ${timeoutMs}ms")
@@ -61,10 +57,16 @@ class QueryExecutor(
                 else -> throw QueryExecutionException("Query execution failed: ${cause?.message ?: e.message}")
             }
         } finally {
+            try {
+                adminDataSource.connection.use { conn ->
+                    conn.createStatement().execute("DROP DATABASE IF EXISTS `$schemaName`")
+                }
+            } catch (e: Exception) {
+                log.warn("Failed to cleanup schema: $schemaName", e)
+            }
             executor.shutdownNow()
         }
     }
-
     private fun extractTableNames(schemaSql: String): List<String> {
         val regex = Regex("""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?""", RegexOption.IGNORE_CASE)
         return regex.findAll(schemaSql).map { it.groupValues[1] }.toList()
