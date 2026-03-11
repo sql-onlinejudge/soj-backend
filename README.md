@@ -9,7 +9,6 @@ SQL 쿼리 문제를 풀고 자동으로 채점하는 온라인 저지 플랫폼
 | Language / Runtime | Kotlin 2.x, Java 21 |
 | Framework | Spring Boot 3.4.1 |
 | ORM / Migration | Exposed 0.47, Flyway 10.6 |
-| Auth | Spring Security, OAuth2 (Google / GitHub), JWT |
 | Database | MySQL 8, Redis 7, MongoDB, Elasticsearch 9 |
 | Messaging | Apache Kafka |
 | Container | Docker SDK (샌드박스 격리 실행) |
