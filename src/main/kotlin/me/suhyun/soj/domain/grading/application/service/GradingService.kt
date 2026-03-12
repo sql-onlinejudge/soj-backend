@@ -32,6 +32,7 @@ class GradingService(
     private val sseEmitterService: SseEmitterService,
     private val meterRegistry: MeterRegistry
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
 
     private val gradingTimer = Timer.builder("grading.request.duration")
         .publishPercentiles(0.5, 0.95, 0.99)
@@ -74,6 +75,10 @@ class GradingService(
                     expected = testCase.answer,
                     isOrderSensitive = problem.isOrderSensitive
                 )
+
+                log.info("grading start submissionId={}, query={}", submissionId, submission.query)
+                log.info("user result rows={}", actualResult)
+                log.info("answer result rows={}", testCase.answer)
 
                 if (!isMatch) {
                     allPassed = false
