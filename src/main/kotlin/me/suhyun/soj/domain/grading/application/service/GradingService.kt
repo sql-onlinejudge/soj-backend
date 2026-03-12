@@ -89,12 +89,15 @@ class GradingService(
             if (allPassed) SubmissionVerdict.ACCEPTED else SubmissionVerdict.WRONG_ANSWER
         } catch (e: BusinessException) {
             errorCounter.increment()
+            log.error("grading failed: business exception, submissionId={}", submissionId, e)
             SubmissionVerdict.INVALID_QUERY
         } catch (e: QueryTimeoutException) {
             errorCounter.increment()
+            log.error("grading failed: timeout, submissionId={}", submissionId, e)
             SubmissionVerdict.TIME_LIMIT_EXCEEDED
         } catch (e: QueryExecutionException) {
             errorCounter.increment()
+            log.error("grading failed: execution error, submissionId={}", submissionId, e)
             SubmissionVerdict.RUNTIME_ERROR
         }
 
