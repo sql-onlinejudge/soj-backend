@@ -11,13 +11,13 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Trigger frontend
+      - name: Send to frontend
         env:
           GH_TOKEN: ${{ secrets.FRONTEND_DISPATCH_TOKEN }}
         run: |
-          DIFF=$(git diff HEAD~1 HEAD | head -c 50000)
+          DIFF=$(git diff HEAD~1 HEAD)
           MSG=$(git log -1 --pretty=%s)
-          gh workflow run sync-frontend.yml \
-            --repo sql-onlinejudge/soj-frontend \
-            -f "diff=$DIFF" \
-            -f "commit_message=$MSG"
+          gh api repos/sql-onlinejudge/soj-frontend/dispatches \
+            -f event_type="backend-updated" \
+            -f "client_payload[diff]=$DIFF" \
+            -f "client_payload[commit_message]=$MSG"
