@@ -10,6 +10,7 @@ data class ProblemResponse(
     val difficulty: Int,
     val solvedCount: Int,
     val submissionCount: Int,
+    val acceptanceRate: Double,
     val createdAt: LocalDateTime,
     val trialStatus: TrialStatus?
 ) {
@@ -21,6 +22,8 @@ data class ProblemResponse(
                 difficulty = problem.difficulty,
                 solvedCount = problem.solvedCount,
                 submissionCount = problem.submissionCount,
+                acceptanceRate = if (problem.submissionCount == 0) 0.0
+                                 else problem.solvedCount.toDouble() / problem.submissionCount * 100,
                 createdAt = problem.createdAt,
                 trialStatus = trialStatus
             )
