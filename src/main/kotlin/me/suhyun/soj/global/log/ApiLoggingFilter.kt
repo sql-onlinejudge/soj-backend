@@ -42,7 +42,10 @@ class ApiLoggingFilter : OncePerRequestFilter() {
             )
 
             if (request.method == "POST" && request.requestURI.matches(Regex("/problems/\\d+/submissions"))) {
-                logData["requestBody"] = String(wrappedRequest.contentAsByteArray)
+                @Suppress("UNCHECKED_CAST")
+                val body = ObjectMapper().readValue(wrappedRequest.contentAsByteArray, MutableMap::class.java) as MutableMap<String, Any?>
+                body["query"] = "[MASKED]"
+                logData["requestBody"] = body
             }
 
             val jsonLog = ObjectMapper().writeValueAsString(logData)

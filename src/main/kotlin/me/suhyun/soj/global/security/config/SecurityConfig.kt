@@ -43,7 +43,7 @@ class SecurityConfig(
         val configuration = CorsConfiguration().apply {
             allowedOriginPatterns = this@SecurityConfig.allowedOrigins.split(",").map { it.trim() }
             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-            allowedHeaders = listOf("*")
+            allowedHeaders = listOf("Content-Type", "Authorization")
             allowCredentials = true
             maxAge = 3600
         }
@@ -72,12 +72,24 @@ class SecurityConfig(
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 auth.requestMatchers("/admin/login").permitAll()
                 auth.requestMatchers("/auth/logout").permitAll()
-                auth.requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                auth.requestMatchers("/actuator/**").hasRole("ADMIN")
                 auth.requestMatchers(HttpMethod.GET, "/problems/**").permitAll()
+                auth.requestMatchers(HttpMethod.POST, "/problems").hasRole("ADMIN")
+                auth.requestMatchers(HttpMethod.PATCH, "/problems/*").hasRole("ADMIN")
+                auth.requestMatchers(HttpMethod.DELETE, "/problems/*").hasRole("ADMIN")
                 auth.requestMatchers(HttpMethod.POST, "/problems/*/submissions").authenticated()
+                auth.requestMatchers(HttpMethod.POST, "/problems/*/test-cases").hasRole("ADMIN")
+                auth.requestMatchers(HttpMethod.PATCH, "/problems/*/test-cases/*").hasRole("ADMIN")
+                auth.requestMatchers(HttpMethod.DELETE, "/problems/*/test-cases/*").hasRole("ADMIN")
+                auth.requestMatchers(HttpMethod.GET, "/workbooks/**").permitAll()
+                auth.requestMatchers(HttpMethod.GET, "/stats/**").permitAll()
+                auth.requestMatchers(HttpMethod.GET, "/problems/*/runs/**").permitAll()
+                auth.requestMatchers("/problems/*/submissions/*/events").permitAll()
+                auth.requestMatchers("/problems/*/runs/*/events").permitAll()
                 auth.requestMatchers(HttpMethod.POST, "/auth/merge-guest").authenticated()
                 auth.requestMatchers("/admin/**").authenticated()
-                auth.anyRequest().permitAll()
+                auth.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()

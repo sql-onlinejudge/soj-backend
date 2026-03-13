@@ -10,6 +10,7 @@ import me.suhyun.soj.domain.workbook.exception.WorkbookErrorCode
 import me.suhyun.soj.domain.workbook.presentation.request.CreateWorkbookProblemRequest
 import me.suhyun.soj.global.common.dto.PageResponse
 import me.suhyun.soj.global.exception.BusinessException
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -40,8 +41,8 @@ class WorkbookProblemService(
         workbookId: Long,
         page: Int,
         size: Int,
-        userId: UUID,
     ): PageResponse<ProblemResponse> {
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         val workbookProblems = workbookProblemRepository.findAllByWorkbookId(workbookId, page, size)
         val totalElements = workbookProblemRepository.countByWorkbookId(workbookId)
 
@@ -50,7 +51,7 @@ class WorkbookProblemService(
         }
 
         val problemIds = problems.mapNotNull { it.id }
-        val trialStatuses = getTrialStatuses(problemIds, userId)
+        val trialStatuses = if (userId != null) getTrialStatuses(problemIds, userId) else emptyMap()
 
         return PageResponse.of(
             content = problems.map { ProblemResponse.from(it, trialStatuses[it.id]) },

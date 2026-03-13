@@ -39,7 +39,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"
+        spring.json.trusted.packages: "me.suhyun.soj.domain.grading.infrastructure.kafka,me.suhyun.soj.domain.problem.application.event"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -68,7 +68,7 @@ sandbox:
   datasource:
     admin:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://${SANDBOX_MYSQL_HOST:localhost}:${SANDBOX_MYSQL_PORT:3309}/${SANDBOX_MYSQL_DATABASE:sandbox}?useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true
+      jdbc-url: jdbc:mysql://${SANDBOX_MYSQL_HOST:localhost}:${SANDBOX_MYSQL_PORT:3309}/${SANDBOX_MYSQL_DATABASE:sandbox}?useSSL=false&allowPublicKeyRetrieval=true
       username: ${SANDBOX_MYSQL_USERNAME:root}
       password: ${SANDBOX_MYSQL_PASSWORD:sandbox}
     readonly:
@@ -82,7 +82,7 @@ sentry:
   dsn: ${SENTRY_DSN:}
   environment: ${SPRING_PROFILES_ACTIVE:local}
   traces-sample-rate: 1.0
-  send-default-pii: true
+  send-default-pii: false
 
 # Actuator
 management:

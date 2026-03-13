@@ -71,6 +71,12 @@ class SubmissionService(
         if (submission.problemId != problemId) {
             throw BusinessException(SubmissionErrorCode.SUBMISSION_NOT_FOUND)
         }
+        val auth = SecurityContextHolder.getContext().authentication
+        val userId = auth?.principal as? UUID
+        val isAdmin = auth?.authorities?.any { it.authority == "ROLE_ADMIN" } == true
+        if (userId != null && !isAdmin && submission.userId != userId) {
+            throw BusinessException(SubmissionErrorCode.SUBMISSION_NOT_FOUND)
+        }
         return SubmissionDetailResponse.from(submission)
     }
 }

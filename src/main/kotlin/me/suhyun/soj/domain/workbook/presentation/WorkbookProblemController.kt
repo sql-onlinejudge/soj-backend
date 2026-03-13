@@ -11,12 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
 
 @RestController
 @RequestMapping("/workbooks/{workbookId}/problems")
@@ -38,14 +36,8 @@ class WorkbookProblemController(
         @PathVariable workbookId: Long,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-        @RequestHeader("X-User-Id") userId: String,
     ): PageResponse<ProblemResponse> {
-        return workbookProblemService.findAll(
-            workbookId = workbookId,
-            page = page,
-            size = size,
-            userId = UUID.fromString(userId),
-        )
+        return workbookProblemService.findAll(workbookId = workbookId, page = page, size = size)
     }
 
     @DeleteMapping("/{problemId}")

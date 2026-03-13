@@ -13,18 +13,20 @@ object SqlGenerator {
                 val constraints = if (col.constraints.isNotEmpty()) {
                     " " + col.constraints.joinToString(" ")
                 } else ""
-                "${col.name} ${col.type}$notNull$constraints"
+                "${escapeIdentifier(col.name)} ${col.type}$notNull$constraints"
             }
-            "CREATE TABLE ${table.name} ($columns);"
+            "CREATE TABLE ${escapeIdentifier(table.name)} ($columns);"
         }
     }
+
+    private fun escapeIdentifier(name: String) = "`${name.replace("`", "``")}`"
 
     fun generateInit(metadata: InitMetadata): String {
         return metadata.statements.joinToString("\n") { stmt ->
             if (stmt.rows.isEmpty()) return@joinToString ""
 
             val columns = stmt.rows.first().keys.toList()
-            val columnNames = columns.joinToString(", ")
+            val columnNames = columns.joinToString(", ") { escapeIdentifier(it) }
 
             val values = stmt.rows.joinToString(", ") { row ->
                 val rowValues = columns.map { col ->
@@ -34,7 +36,7 @@ object SqlGenerator {
                 "($rowValues)"
             }
 
-            "INSERT INTO ${stmt.table} ($columnNames) VALUES $values;"
+            "INSERT INTO ${escapeIdentifier(stmt.table)} ($columnNames) VALUES $values;"
         }.trim()
     }
 

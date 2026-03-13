@@ -7,12 +7,16 @@ import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.workbook.domain.model.WorkbookProblem
 import me.suhyun.soj.domain.workbook.domain.repository.WorkbookProblemRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -35,6 +39,13 @@ class WorkbookProblemServiceFindAllTest {
     @BeforeEach
     fun setUp() {
         workbookProblemService = WorkbookProblemService(workbookProblemRepository, problemRepository, submissionRepository)
+        SecurityContextHolder.getContext().authentication =
+            UsernamePasswordAuthenticationToken(userId, null, listOf(SimpleGrantedAuthority("ROLE_USER")))
+    }
+
+    @AfterEach
+    fun tearDown() {
+        SecurityContextHolder.clearContext()
     }
 
     @Test
@@ -51,7 +62,7 @@ class WorkbookProblemServiceFindAllTest {
         whenever(submissionRepository.getTrialStatuses(listOf(10L, 20L), userId))
             .thenReturn(mapOf(10L to true))
 
-        val result = workbookProblemService.findAll(1L, 0, 20, userId)
+        val result = workbookProblemService.findAll(1L, 0, 20)
 
         assertThat(result.content).hasSize(2)
         assertThat(result.totalElements).isEqualTo(2L)
@@ -66,7 +77,7 @@ class WorkbookProblemServiceFindAllTest {
         whenever(workbookProblemRepository.findAllByWorkbookId(1L, 0, 20)).thenReturn(emptyList())
         whenever(workbookProblemRepository.countByWorkbookId(1L)).thenReturn(0L)
 
-        val result = workbookProblemService.findAll(1L, 0, 20, userId)
+        val result = workbookProblemService.findAll(1L, 0, 20)
 
         assertThat(result.content).isEmpty()
         assertThat(result.totalElements).isEqualTo(0L)
