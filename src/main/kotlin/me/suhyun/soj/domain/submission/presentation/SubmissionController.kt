@@ -8,7 +8,6 @@ import me.suhyun.soj.domain.submission.presentation.response.SubmissionResponse
 import me.suhyun.soj.domain.submission.presentation.response.SubmitResponse
 import me.suhyun.soj.global.common.dto.PageResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
 
 @RestController
 @RequestMapping("/problems/{problemId}/submissions")
@@ -31,9 +29,7 @@ class SubmissionController(
         @PathVariable problemId: Long,
         @Valid @RequestBody request: SubmitRequest
     ): SubmitResponse {
-        val userId = SecurityContextHolder.getContext().authentication.principal as UUID
-        val submissionId = submissionService.submit(problemId, userId, request)
-        return SubmitResponse(submissionId)
+        return SubmitResponse(submissionService.submit(problemId, request))
     }
 
     @GetMapping
@@ -42,12 +38,7 @@ class SubmissionController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int
     ): PageResponse<SubmissionResponse> {
-        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
-        return if (userId != null) {
-            submissionService.findMyByProblemId(problemId, userId, page, size)
-        } else {
-            submissionService.findAllByProblemId(problemId, page, size)
-        }
+        return submissionService.findByProblemId(problemId, page, size)
     }
 
     @GetMapping("/{submissionId}")

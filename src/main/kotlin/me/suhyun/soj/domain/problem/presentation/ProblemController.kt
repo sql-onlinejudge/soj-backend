@@ -9,7 +9,6 @@ import me.suhyun.soj.domain.problem.presentation.response.ProblemDetailResponse
 import me.suhyun.soj.domain.problem.presentation.response.ProblemResponse
 import me.suhyun.soj.global.common.dto.PageResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
 
 @RestController
 @RequestMapping("/problems")
@@ -46,7 +44,6 @@ class ProblemController(
         @RequestParam(defaultValue = "id:desc") sort: List<String>,
         @RequestParam(required = false) trialStatus: TrialStatus?
     ): PageResponse<ProblemResponse> {
-        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         return problemService.findAll(
             page = page,
             size = size,
@@ -54,17 +51,13 @@ class ProblemController(
             maxDifficulty = maxDifficulty,
             keyword = keyword,
             sort = sort,
-            userId = userId,
             trialStatus = trialStatus
         )
     }
 
     @GetMapping("/{problemId}")
-    fun findById(
-        @PathVariable problemId: Long
-    ): ProblemDetailResponse {
-        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
-        return problemService.findById(problemId, userId)
+    fun findById(@PathVariable problemId: Long): ProblemDetailResponse {
+        return problemService.findById(problemId)
     }
 
     @PatchMapping("/{problemId}")

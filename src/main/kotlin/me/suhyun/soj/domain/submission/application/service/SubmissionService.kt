@@ -13,6 +13,7 @@ import me.suhyun.soj.global.common.dto.PageResponse
 import me.suhyun.soj.global.exception.BusinessException
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -27,7 +28,8 @@ class SubmissionService(
     private val redisTemplate: StringRedisTemplate
 ) {
 
-    fun submit(problemId: Long, userId: UUID, request: SubmitRequest): Long {
+    fun submit(problemId: Long, request: SubmitRequest): Long {
+        val userId = SecurityContextHolder.getContext().authentication.principal as UUID
         val saved = submissionRepository.save(
             Submission(
                 id = null,
@@ -49,27 +51,17 @@ class SubmissionService(
     }
 
     @Transactional(readOnly = true)
-    fun findAllByProblemId(problemId: Long, page: Int, size: Int): PageResponse<SubmissionResponse> {
-        val submissions = submissionRepository.findByProblemId(problemId, page, size)
-        val totalElements = submissionRepository.countByProblemId(problemId)
-        return PageResponse.of(
-            content = submissions.map { SubmissionResponse.from(it) },
-            page = page,
-            size = size,
-            totalElements = totalElements
-        )
-    }
-
-    @Transactional(readOnly = true)
-    fun findMyByProblemId(problemId: Long, userId: UUID, page: Int, size: Int): PageResponse<SubmissionResponse> {
-        val submissions = submissionRepository.findByProblemIdAndUserId(problemId, userId, page, size)
-        val totalElements = submissionRepository.countByProblemIdAndUserId(problemId, userId)
-        return PageResponse.of(
-            content = submissions.map { SubmissionResponse.from(it) },
-            page = page,
-            size = size,
-            totalElements = totalElements
-        )
+    fun findByProblemId(problemId: Long, page: Int, size: Int): PageResponse<SubmissionResponse> {
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
+        return if (userId != null) {
+            val submissions = submissionRepository.findByProblemIdAndUserId(problemId, userId, page, size)
+            val totalElements = submissionRepository.countByProblemIdAndUserId(problemId, userId)
+            PageResponse.of(content = submissions.map { SubmissionResponse.from(it) }, page = page, size = size, totalElements = totalElements)
+        } else {
+            val submissions = submissionRepository.findByProblemId(problemId, page, size)
+            val totalElements = submissionRepository.countByProblemId(problemId)
+            PageResponse.of(content = submissions.map { SubmissionResponse.from(it) }, page = page, size = size, totalElements = totalElements)
+        }
     }
 
     @Transactional(readOnly = true)

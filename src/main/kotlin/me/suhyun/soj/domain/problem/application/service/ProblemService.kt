@@ -19,6 +19,7 @@ import me.suhyun.soj.global.exception.BusinessException
 import me.suhyun.soj.global.infrastructure.cache.CacheKeys
 import me.suhyun.soj.global.infrastructure.cache.CacheService
 import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -85,9 +86,9 @@ class ProblemService(
         maxDifficulty: Int?,
         keyword: String?,
         sort: List<String>,
-        userId: UUID?,
         trialStatus: TrialStatus? = null
     ): PageResponse<ProblemResponse> {
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         val problems: List<Problem>
         val totalElements: Long
 
@@ -131,7 +132,8 @@ class ProblemService(
     }
 
     @Transactional(readOnly = true)
-    fun findById(problemId: Long, userId: UUID?): ProblemDetailResponse {
+    fun findById(problemId: Long): ProblemDetailResponse {
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         val problem = getCachedProblem(problemId)
             ?: problemRepository.findById(problemId)?.also { cacheProblem(it) }
             ?: throw BusinessException(ProblemErrorCode.PROBLEM_NOT_FOUND)
