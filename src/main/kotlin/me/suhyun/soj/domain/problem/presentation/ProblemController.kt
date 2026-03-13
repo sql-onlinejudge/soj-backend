@@ -9,7 +9,7 @@ import me.suhyun.soj.domain.problem.presentation.response.ProblemDetailResponse
 import me.suhyun.soj.domain.problem.presentation.response.ProblemResponse
 import me.suhyun.soj.global.common.dto.PageResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -38,7 +38,6 @@ class ProblemController(
 
     @GetMapping
     fun findAll(
-        authentication: Authentication?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) minDifficulty: Int?,
@@ -47,7 +46,7 @@ class ProblemController(
         @RequestParam(defaultValue = "id:desc") sort: List<String>,
         @RequestParam(required = false) trialStatus: TrialStatus?
     ): PageResponse<ProblemResponse> {
-        val userId = authentication?.principal as? UUID
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         return problemService.findAll(
             page = page,
             size = size,
@@ -62,10 +61,9 @@ class ProblemController(
 
     @GetMapping("/{problemId}")
     fun findById(
-        authentication: Authentication?,
         @PathVariable problemId: Long
     ): ProblemDetailResponse {
-        val userId = authentication?.principal as? UUID
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         return problemService.findById(problemId, userId)
     }
 

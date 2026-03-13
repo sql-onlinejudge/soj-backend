@@ -8,7 +8,7 @@ import me.suhyun.soj.domain.submission.presentation.response.SubmissionResponse
 import me.suhyun.soj.domain.submission.presentation.response.SubmitResponse
 import me.suhyun.soj.global.common.dto.PageResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,23 +28,21 @@ class SubmissionController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun submit(
-        authentication: Authentication,
         @PathVariable problemId: Long,
         @Valid @RequestBody request: SubmitRequest
     ): SubmitResponse {
-        val userId = authentication.principal as UUID
+        val userId = SecurityContextHolder.getContext().authentication.principal as UUID
         val submissionId = submissionService.submit(problemId, userId, request)
         return SubmitResponse(submissionId)
     }
 
     @GetMapping
     fun findAll(
-        authentication: Authentication?,
         @PathVariable problemId: Long,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int
     ): PageResponse<SubmissionResponse> {
-        val userId = authentication?.principal as? UUID
+        val userId = SecurityContextHolder.getContext().authentication?.principal as? UUID
         return if (userId != null) {
             submissionService.findMyByProblemId(problemId, userId, page, size)
         } else {
