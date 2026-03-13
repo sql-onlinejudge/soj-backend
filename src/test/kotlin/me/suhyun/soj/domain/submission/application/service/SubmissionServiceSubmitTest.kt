@@ -5,6 +5,7 @@ import me.suhyun.soj.domain.submission.domain.model.Submission
 import me.suhyun.soj.domain.submission.domain.model.enums.SubmissionStatus
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.submission.presentation.request.SubmitRequest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,6 +21,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.mockito.Answers
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -46,15 +50,23 @@ class SubmissionServiceSubmitTest {
 
     private lateinit var submissionService: SubmissionService
 
+    private val userId = UUID.randomUUID()
+
     @BeforeEach
     fun setUp() {
         submissionService = SubmissionService(submissionRepository, problemRepository, eventPublisher, redisTemplate)
+        SecurityContextHolder.getContext().authentication =
+            UsernamePasswordAuthenticationToken(userId, null, listOf(SimpleGrantedAuthority("ROLE_USER")))
+    }
+
+    @AfterEach
+    fun tearDown() {
+        SecurityContextHolder.clearContext()
     }
 
     @Test
     fun `should create submission with PENDING status`() {
         val problemId = 1L
-        val userId = UUID.randomUUID()
         val request = SubmitRequest(query = "SELECT * FROM users")
 
         whenever(submissionRepository.save(any())).thenReturn(
@@ -71,7 +83,7 @@ class SubmissionServiceSubmitTest {
             )
         )
 
-        submissionService.submit(problemId, userId, request)
+        submissionService.submit(problemId, request)
 
         verify(submissionRepository).save(capture(submissionCaptor))
         val captured = submissionCaptor.value
@@ -82,7 +94,6 @@ class SubmissionServiceSubmitTest {
     @Test
     fun `should save submission with correct problemId and userId`() {
         val problemId = 1L
-        val userId = UUID.randomUUID()
         val request = SubmitRequest(query = "SELECT id FROM products WHERE price > 100")
 
         whenever(submissionRepository.save(any())).thenReturn(
@@ -99,7 +110,7 @@ class SubmissionServiceSubmitTest {
             )
         )
 
-        submissionService.submit(problemId, userId, request)
+        submissionService.submit(problemId, request)
 
         verify(submissionRepository).save(capture(submissionCaptor))
         val captured = submissionCaptor.value
@@ -111,7 +122,6 @@ class SubmissionServiceSubmitTest {
     @Test
     fun `should return submissionId after save`() {
         val problemId = 1L
-        val userId = UUID.randomUUID()
         val request = SubmitRequest(query = "SELECT * FROM users")
 
         whenever(submissionRepository.save(any())).thenReturn(
@@ -128,7 +138,7 @@ class SubmissionServiceSubmitTest {
             )
         )
 
-        val result = submissionService.submit(problemId, userId, request)
+        val result = submissionService.submit(problemId, request)
 
         assertThat(result).isEqualTo(123L)
     }
@@ -136,7 +146,6 @@ class SubmissionServiceSubmitTest {
     @Test
     fun `should publish SubmissionCreatedEvent after save`() {
         val problemId = 1L
-        val userId = UUID.randomUUID()
         val request = SubmitRequest(query = "SELECT * FROM users")
 
         whenever(submissionRepository.save(any())).thenReturn(
@@ -153,7 +162,7 @@ class SubmissionServiceSubmitTest {
             )
         )
 
-        submissionService.submit(problemId, userId, request)
+        submissionService.submit(problemId, request)
 
         verify(eventPublisher).publishEvent(capture(eventCaptor))
         assertThat(eventCaptor.value.submissionId).isEqualTo(1L)

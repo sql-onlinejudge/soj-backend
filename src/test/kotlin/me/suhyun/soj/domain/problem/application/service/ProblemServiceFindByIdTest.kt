@@ -78,7 +78,7 @@ class ProblemServiceFindByIdTest {
 
         whenever(problemRepository.findById(1L)).thenReturn(problem)
 
-        val result = problemService.findById(1L, null)
+        val result = problemService.findById(1L)
 
         assertThat(result.id).isEqualTo(1L)
         assertThat(result.title).isEqualTo("Test Problem")
@@ -95,7 +95,7 @@ class ProblemServiceFindByIdTest {
     fun `should throw PROBLEM_NOT_FOUND when problem does not exist`() {
         whenever(problemRepository.findById(999L)).thenReturn(null)
 
-        assertThatThrownBy { problemService.findById(999L, null) }
+        assertThatThrownBy { problemService.findById(999L) }
             .isInstanceOf(BusinessException::class.java)
             .extracting("errorCode")
             .isEqualTo(ProblemErrorCode.PROBLEM_NOT_FOUND)

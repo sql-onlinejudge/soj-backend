@@ -10,12 +10,16 @@ import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
 import me.suhyun.soj.global.infrastructure.cache.CacheService
 import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -57,6 +61,13 @@ class ProblemServiceFindAllTest {
             problemEventPublisher,
             problemSearchService
         )
+        SecurityContextHolder.getContext().authentication =
+            UsernamePasswordAuthenticationToken(userId, null, listOf(SimpleGrantedAuthority("ROLE_USER")))
+    }
+
+    @AfterEach
+    fun tearDown() {
+        SecurityContextHolder.clearContext()
     }
 
     private fun createProblem(id: Long, title: String = "Problem $id", difficulty: Int = 3): Problem {
@@ -86,7 +97,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, null, userId)).thenReturn(2L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L, 2L), userId)).thenReturn(emptyMap())
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId)
+        val result = problemService.findAll(0, 10, null, null, null, sort)
 
         assertThat(result.content).hasSize(2)
         assertThat(result.totalElements).isEqualTo(2L)
@@ -103,7 +114,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.findByIdsWithFilters(listOf(1L), null, null, null, userId, sort)).thenReturn(problems)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(emptyMap())
 
-        val result = problemService.findAll(0, 10, null, null, "SQL", sort, userId)
+        val result = problemService.findAll(0, 10, null, null, "SQL", sort)
 
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].title).isEqualTo("SQL Basics")
@@ -118,7 +129,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(5, null, null, null, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(emptyMap())
 
-        val result = problemService.findAll(0, 10, 5, null, null, sort, userId)
+        val result = problemService.findAll(0, 10, 5, null, null, sort)
 
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].difficulty).isEqualTo(5)
@@ -133,7 +144,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, null, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(emptyMap())
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId)
+        val result = problemService.findAll(0, 10, null, null, null, sort)
 
         assertThat(result.content[0].trialStatus).isEqualTo(TrialStatus.NOT_ATTEMPTED)
     }
@@ -147,7 +158,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, null, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(mapOf(1L to false))
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId)
+        val result = problemService.findAll(0, 10, null, null, null, sort)
 
         assertThat(result.content[0].trialStatus).isEqualTo(TrialStatus.ATTEMPTED)
     }
@@ -161,7 +172,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, null, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(mapOf(1L to true))
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId)
+        val result = problemService.findAll(0, 10, null, null, null, sort)
 
         assertThat(result.content[0].trialStatus).isEqualTo(TrialStatus.SOLVED)
     }
@@ -173,7 +184,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.findAll(0, 10, null, null, null, sort, null, userId)).thenReturn(emptyList())
         whenever(problemRepository.countAll(null, null, null, null, userId)).thenReturn(0L)
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId)
+        val result = problemService.findAll(0, 10, null, null, null, sort)
 
         assertThat(result.content).isEmpty()
         assertThat(result.totalElements).isEqualTo(0L)
@@ -188,7 +199,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, TrialStatus.SOLVED, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(mapOf(1L to true))
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId, TrialStatus.SOLVED)
+        val result = problemService.findAll(0, 10, null, null, null, sort, TrialStatus.SOLVED)
 
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].trialStatus).isEqualTo(TrialStatus.SOLVED)
@@ -203,7 +214,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, TrialStatus.ATTEMPTED, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(mapOf(1L to false))
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId, TrialStatus.ATTEMPTED)
+        val result = problemService.findAll(0, 10, null, null, null, sort, TrialStatus.ATTEMPTED)
 
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].trialStatus).isEqualTo(TrialStatus.ATTEMPTED)
@@ -218,7 +229,7 @@ class ProblemServiceFindAllTest {
         whenever(problemRepository.countAll(null, null, null, TrialStatus.NOT_ATTEMPTED, userId)).thenReturn(1L)
         whenever(submissionRepository.getTrialStatuses(listOf(1L), userId)).thenReturn(emptyMap())
 
-        val result = problemService.findAll(0, 10, null, null, null, sort, userId, TrialStatus.NOT_ATTEMPTED)
+        val result = problemService.findAll(0, 10, null, null, null, sort, TrialStatus.NOT_ATTEMPTED)
 
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].trialStatus).isEqualTo(TrialStatus.NOT_ATTEMPTED)

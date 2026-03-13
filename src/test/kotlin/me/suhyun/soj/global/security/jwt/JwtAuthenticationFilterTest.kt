@@ -85,50 +85,6 @@ class JwtAuthenticationFilterTest {
     }
 
     @Nested
-    inner class XUserIdHeaderAuth {
-
-        @Test
-        fun `should authenticate via X-User-Id header when no token`() {
-            val uuid = UUID.randomUUID()
-            request.addHeader("X-User-Id", uuid.toString())
-
-            whenever(cookieUtils.resolveAccessToken(request)).thenReturn(null)
-
-            filter.doFilter(request, response, filterChain)
-
-            assertThat(SecurityContextHolder.getContext().authentication).isNotNull
-            assertThat(request.getAttribute("userId")).isEqualTo(uuid)
-            verify(filterChain).doFilter(request, response)
-        }
-
-        @Test
-        fun `should fallback to X-User-Id when token is invalid`() {
-            val uuid = UUID.randomUUID()
-            request.addHeader("X-User-Id", uuid.toString())
-
-            whenever(cookieUtils.resolveAccessToken(request)).thenReturn("invalid-token")
-            whenever(jwtTokenProvider.validateToken("invalid-token")).thenReturn(false)
-
-            filter.doFilter(request, response, filterChain)
-
-            assertThat(request.getAttribute("userId")).isEqualTo(uuid)
-            verify(filterChain).doFilter(request, response)
-        }
-
-        @Test
-        fun `should skip auth when X-User-Id is invalid UUID`() {
-            request.addHeader("X-User-Id", "not-a-uuid")
-
-            whenever(cookieUtils.resolveAccessToken(request)).thenReturn(null)
-
-            filter.doFilter(request, response, filterChain)
-
-            assertThat(SecurityContextHolder.getContext().authentication).isNull()
-            verify(filterChain).doFilter(request, response)
-        }
-    }
-
-    @Nested
     inner class NoAuth {
 
         @Test

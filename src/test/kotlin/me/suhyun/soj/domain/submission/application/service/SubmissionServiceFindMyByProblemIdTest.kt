@@ -5,6 +5,7 @@ import me.suhyun.soj.domain.submission.domain.model.enums.SubmissionStatus
 import me.suhyun.soj.domain.submission.domain.model.enums.SubmissionVerdict
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -13,6 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -38,6 +42,13 @@ class SubmissionServiceFindMyByProblemIdTest {
     @BeforeEach
     fun setUp() {
         submissionService = SubmissionService(submissionRepository, problemRepository, eventPublisher, redisTemplate)
+        SecurityContextHolder.getContext().authentication =
+            UsernamePasswordAuthenticationToken(userId, null, listOf(SimpleGrantedAuthority("ROLE_USER")))
+    }
+
+    @AfterEach
+    fun tearDown() {
+        SecurityContextHolder.clearContext()
     }
 
     private fun createSubmission(
@@ -70,7 +81,7 @@ class SubmissionServiceFindMyByProblemIdTest {
         whenever(submissionRepository.findByProblemIdAndUserId(problemId, userId, 0, 10)).thenReturn(submissions)
         whenever(submissionRepository.countByProblemIdAndUserId(problemId, userId)).thenReturn(2L)
 
-        val result = submissionService.findMyByProblemId(problemId, userId, 0, 10)
+        val result = submissionService.findByProblemId(problemId, 0, 10)
 
         assertThat(result.content).hasSize(2)
         assertThat(result.totalElements).isEqualTo(2L)
@@ -83,7 +94,7 @@ class SubmissionServiceFindMyByProblemIdTest {
         whenever(submissionRepository.findByProblemIdAndUserId(problemId, userId, 0, 10)).thenReturn(emptyList())
         whenever(submissionRepository.countByProblemIdAndUserId(problemId, userId)).thenReturn(0L)
 
-        val result = submissionService.findMyByProblemId(problemId, userId, 0, 10)
+        val result = submissionService.findByProblemId(problemId, 0, 10)
 
         assertThat(result.content).isEmpty()
         assertThat(result.totalElements).isEqualTo(0L)
@@ -97,7 +108,7 @@ class SubmissionServiceFindMyByProblemIdTest {
         whenever(submissionRepository.findByProblemIdAndUserId(problemId, userId, 1, 3)).thenReturn(submissions)
         whenever(submissionRepository.countByProblemIdAndUserId(problemId, userId)).thenReturn(7L)
 
-        val result = submissionService.findMyByProblemId(problemId, userId, 1, 3)
+        val result = submissionService.findByProblemId(problemId, 1, 3)
 
         assertThat(result.page).isEqualTo(1)
         assertThat(result.size).isEqualTo(3)
