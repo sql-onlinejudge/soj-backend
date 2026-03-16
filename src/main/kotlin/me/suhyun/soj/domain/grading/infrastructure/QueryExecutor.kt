@@ -5,6 +5,7 @@ import me.suhyun.soj.domain.grading.exception.QueryTimeoutException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
+import java.sql.Connection
 import java.sql.ResultSet
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -17,21 +18,22 @@ class QueryExecutor(
     private val adminDataSource: DataSource,
 
     @Qualifier("sandboxReadonlyDataSource")
-    private val readonlyDataSource: DataSource
+    private val readonlyDataSource: DataSource,
+    private val schemaPool: SandboxSchemaPool
 ) {
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
     fun execute(schemaSql: String, initSql: String?, query: String, timeoutMs: Int): String {
         val executor = Executors.newSingleThreadExecutor()
-        val schemaName = "sandbox_${Thread.currentThread().id}_${System.nanoTime()}"
+        val schemaName = schemaPool.acquire()
 
         try {
             val future = executor.submit<String> {
                 adminDataSource.connection.use { adminConn ->
                     adminConn.createStatement().use { stmt ->
-                        stmt.execute("CREATE DATABASE IF NOT EXISTS `$schemaName`")
                         stmt.execute("USE `$schemaName`")
+                        dropAllTables(adminConn, schemaName)
                         stmt.execute(schemaSql)
                         initSql?.let { stmt.execute(it) }
                     }
@@ -46,9 +48,7 @@ class QueryExecutor(
                 }
             }
 
-            val startTime = System.currentTimeMillis()
-            val result = future.get(timeoutMs.toLong(), TimeUnit.MILLISECONDS)
-            return result
+            return future.get(timeoutMs.toLong(), TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
             throw QueryTimeoutException("Query execution timed out after ${timeoutMs}ms")
         } catch (e: Exception) {
@@ -58,15 +58,34 @@ class QueryExecutor(
             }
         } finally {
             try {
-                adminDataSource.connection.use { conn ->
-                    conn.createStatement().execute("DROP DATABASE IF EXISTS `$schemaName`")
-                }
+                schemaPool.release(schemaName)
             } catch (e: Exception) {
-                log.warn("Failed to cleanup schema: $schemaName", e)
+                log.warn("Failed to release schema: {}", schemaName, e)
             }
             executor.shutdownNow()
         }
     }
+
+    private fun dropAllTables(conn: Connection, schemaName: String) {
+        conn.createStatement().use { stmt ->
+            stmt.execute("SET FOREIGN_KEY_CHECKS = 0")
+            try {
+                conn.createStatement().use { tableStmt ->
+                    tableStmt.executeQuery(
+                        "SELECT table_name FROM information_schema.tables WHERE table_schema = '$schemaName'"
+                    ).use { resultSet ->
+                        while (resultSet.next()) {
+                            val tableName = resultSet.getString(1)
+                            stmt.execute("DROP TABLE IF EXISTS `$schemaName`.`$tableName`")
+                        }
+                    }
+                }
+            } finally {
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 1")
+            }
+        }
+    }
+
     private fun extractTableNames(schemaSql: String): List<String> {
         val regex = Regex("""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?""", RegexOption.IGNORE_CASE)
         return regex.findAll(schemaSql).map { it.groupValues[1] }.toList()

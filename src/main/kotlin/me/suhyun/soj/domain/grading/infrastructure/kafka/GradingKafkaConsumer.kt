@@ -11,7 +11,11 @@ class GradingKafkaConsumer(
     private val objectMapper: ObjectMapper
 ) {
 
-    @KafkaListener(topics = [GradingKafkaProducer.TOPIC], groupId = "grading-group")
+    @KafkaListener(
+        topics = [GradingKafkaProducer.TOPIC],
+        groupId = "grading-group",
+        concurrency = "\${sandbox.pool.size:10}"
+    )
     fun consume(message: String) {
         val event = objectMapper.readValue(message, GradingEvent::class.java)
         gradingService.grade(event.submissionId)

@@ -36,19 +36,37 @@ class QueryExecutorTest {
     private lateinit var adminStatement: Statement
 
     @Mock
+    private lateinit var tableLookupStatement: Statement
+
+    @Mock
     private lateinit var readonlyStatement: Statement
 
     @Mock
     private lateinit var resultSet: ResultSet
 
     @Mock
+    private lateinit var tableResultSet: ResultSet
+
+    @Mock
     private lateinit var metaData: ResultSetMetaData
+
+    @Mock
+    private lateinit var schemaPool: SandboxSchemaPool
 
     private lateinit var queryExecutor: QueryExecutor
 
     @BeforeEach
     fun setUp() {
-        queryExecutor = QueryExecutor(adminDataSource, readonlyDataSource)
+        queryExecutor = QueryExecutor(adminDataSource, readonlyDataSource, schemaPool)
+        whenever(schemaPool.acquire()).thenReturn("sandbox_pool_0")
+    }
+
+    private fun stubAdminStatements() {
+        whenever(adminDataSource.connection).thenReturn(adminConnection)
+        whenever(adminConnection.createStatement()).thenReturn(adminStatement, tableLookupStatement)
+        whenever(adminStatement.execute(any())).thenReturn(true)
+        whenever(tableLookupStatement.executeQuery(any())).thenReturn(tableResultSet)
+        whenever(tableResultSet.next()).thenReturn(false)
     }
 
     @Nested
@@ -56,9 +74,7 @@ class QueryExecutorTest {
 
         @Test
         fun `should execute query and return result`() {
-            whenever(adminDataSource.connection).thenReturn(adminConnection)
-            whenever(adminConnection.createStatement()).thenReturn(adminStatement)
-            whenever(adminStatement.execute(any())).thenReturn(true)
+            stubAdminStatements()
 
             whenever(readonlyDataSource.connection).thenReturn(readonlyConnection)
             whenever(readonlyConnection.createStatement()).thenReturn(readonlyStatement)
@@ -85,9 +101,7 @@ class QueryExecutorTest {
 
         @Test
         fun `should execute query without initSql`() {
-            whenever(adminDataSource.connection).thenReturn(adminConnection)
-            whenever(adminConnection.createStatement()).thenReturn(adminStatement)
-            whenever(adminStatement.execute(any())).thenReturn(true)
+            stubAdminStatements()
 
             whenever(readonlyDataSource.connection).thenReturn(readonlyConnection)
             whenever(readonlyConnection.createStatement()).thenReturn(readonlyStatement)
@@ -109,9 +123,7 @@ class QueryExecutorTest {
 
         @Test
         fun `should handle NULL values in result`() {
-            whenever(adminDataSource.connection).thenReturn(adminConnection)
-            whenever(adminConnection.createStatement()).thenReturn(adminStatement)
-            whenever(adminStatement.execute(any())).thenReturn(true)
+            stubAdminStatements()
 
             whenever(readonlyDataSource.connection).thenReturn(readonlyConnection)
             whenever(readonlyConnection.createStatement()).thenReturn(readonlyStatement)

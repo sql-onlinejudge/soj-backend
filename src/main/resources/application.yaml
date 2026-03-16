@@ -65,6 +65,8 @@ spring:
 
 # Sandbox MySQL
 sandbox:
+  pool:
+    size: 10
   datasource:
     admin:
       driver-class-name: com.mysql.cj.jdbc.Driver

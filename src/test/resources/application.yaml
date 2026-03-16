@@ -47,6 +47,8 @@ spring:
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
 sandbox:
+  pool:
+    size: 10
   datasource:
     admin:
       driver-class-name: org.h2.Driver
