@@ -38,6 +38,7 @@ interface ProblemRepository {
     fun softDelete(id: Long): Boolean
     fun incrementSubmittedCount(id: Long)
     fun incrementSolvedCount(id: Long)
+    fun findAllActive(): List<Problem>
     fun findByIdsWithFilters(
         ids: List<Long>,
         minDifficulty: Int?,

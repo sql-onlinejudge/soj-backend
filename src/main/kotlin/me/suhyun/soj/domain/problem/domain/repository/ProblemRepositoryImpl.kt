@@ -148,6 +148,13 @@ class ProblemRepositoryImpl : ProblemRepository {
         }
     }
 
+    override fun findAllActive(): List<Problem> {
+        return ProblemTable.selectAll()
+            .where { ProblemTable.deletedAt.isNull() }
+            .map { ProblemEntity.wrapRow(it) }
+            .map { Problem.from(it) }
+    }
+
     override fun findByIdsWithFilters(
         ids: List<Long>,
         minDifficulty: Int?,

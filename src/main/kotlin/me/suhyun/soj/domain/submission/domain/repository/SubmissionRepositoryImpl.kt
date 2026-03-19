@@ -171,6 +171,42 @@ class SubmissionRepositoryImpl : SubmissionRepository {
             .map { Submission.from(it) }
     }
 
+    override fun findRecentByUserId(userId: UUID, limit: Int): List<Submission> {
+        return SubmissionTable.selectAll()
+            .andWhere { SubmissionTable.deletedAt.isNull() }
+            .andWhere { SubmissionTable.userId eq userId.toString() }
+            .orderBy(SubmissionTable.createdAt, SortOrder.DESC)
+            .limit(limit)
+            .map { SubmissionEntity.wrapRow(it) }
+            .map { Submission.from(it) }
+    }
+
+    override fun findSolvedProblemIdsByUserId(userId: UUID): Set<Long> {
+        return SubmissionTable
+            .select(SubmissionTable.problemId)
+            .where { SubmissionTable.deletedAt.isNull() }
+            .andWhere { SubmissionTable.userId eq userId.toString() }
+            .andWhere { SubmissionTable.verdict eq SubmissionVerdict.ACCEPTED }
+            .map { it[SubmissionTable.problemId] }
+            .toSet()
+    }
+
+    override fun countNonAcceptedByUserIdAndProblemId(userId: UUID, problemId: Long): Int {
+        val total = SubmissionTable.selectAll()
+            .where { SubmissionTable.deletedAt.isNull() }
+            .andWhere { SubmissionTable.userId eq userId.toString() }
+            .andWhere { SubmissionTable.problemId eq problemId }
+            .andWhere { SubmissionTable.verdict.isNotNull() }
+            .count()
+        val accepted = SubmissionTable.selectAll()
+            .where { SubmissionTable.deletedAt.isNull() }
+            .andWhere { SubmissionTable.userId eq userId.toString() }
+            .andWhere { SubmissionTable.problemId eq problemId }
+            .andWhere { SubmissionTable.verdict eq SubmissionVerdict.ACCEPTED }
+            .count()
+        return (total - accepted).toInt()
+    }
+
     override fun migrateUserId(fromUserId: UUID, toUserId: UUID): Int {
         return SubmissionTable.update({ SubmissionTable.userId eq fromUserId.toString() }) {
             it[userId] = toUserId.toString()

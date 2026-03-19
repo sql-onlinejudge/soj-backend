@@ -2,11 +2,14 @@ package me.suhyun.soj.domain.problem.presentation
 
 import jakarta.validation.Valid
 import me.suhyun.soj.domain.problem.application.service.ProblemService
+import me.suhyun.soj.domain.problem.application.service.RecommendationService
 import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import me.suhyun.soj.domain.problem.presentation.request.CreateProblemRequest
+import me.suhyun.soj.domain.problem.presentation.request.RecommendationTrigger
 import me.suhyun.soj.domain.problem.presentation.request.UpdateProblemRequest
 import me.suhyun.soj.domain.problem.presentation.response.ProblemDetailResponse
 import me.suhyun.soj.domain.problem.presentation.response.ProblemResponse
+import me.suhyun.soj.domain.problem.presentation.response.RecommendationResponse
 import me.suhyun.soj.global.common.dto.PageResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,7 +26,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/problems")
 class ProblemController(
-    private val problemService: ProblemService
+    private val problemService: ProblemService,
+    private val recommendationService: RecommendationService
 ) {
 
     @PostMapping
@@ -73,5 +77,13 @@ class ProblemController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable problemId: Long) {
         problemService.delete(problemId)
+    }
+
+    @GetMapping("/{problemId}/recommendations")
+    fun recommend(
+        @PathVariable problemId: Long,
+        @RequestParam trigger: RecommendationTrigger
+    ): List<RecommendationResponse> {
+        return recommendationService.recommend(problemId, trigger)
     }
 }
