@@ -4,6 +4,7 @@ import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.testcase.domain.model.TestCase
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
 import me.suhyun.soj.domain.testcase.exception.TestCaseErrorCode
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.global.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -24,11 +25,14 @@ class TestCaseServiceFindByIdTest {
     @Mock
     private lateinit var problemRepository: ProblemRepository
 
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private lateinit var testCaseService: TestCaseService
 
     @BeforeEach
     fun setUp() {
-        testCaseService = TestCaseService(testCaseRepository, problemRepository)
+        testCaseService = TestCaseService(testCaseRepository, problemRepository, testCaseMetadataMongoRepository)
     }
 
     @Test
@@ -48,6 +52,7 @@ class TestCaseServiceFindByIdTest {
         )
 
         whenever(testCaseRepository.findById(testcaseId)).thenReturn(testCase)
+        whenever(testCaseMetadataMongoRepository.findByTestCaseId(testcaseId)).thenReturn(null)
 
         val result = testCaseService.findById(problemId, testcaseId)
 

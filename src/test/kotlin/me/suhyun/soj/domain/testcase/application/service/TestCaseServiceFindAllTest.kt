@@ -3,12 +3,14 @@ package me.suhyun.soj.domain.testcase.application.service
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.testcase.domain.model.TestCase
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
 
@@ -21,11 +23,14 @@ class TestCaseServiceFindAllTest {
     @Mock
     private lateinit var problemRepository: ProblemRepository
 
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private lateinit var testCaseService: TestCaseService
 
     @BeforeEach
     fun setUp() {
-        testCaseService = TestCaseService(testCaseRepository, problemRepository)
+        testCaseService = TestCaseService(testCaseRepository, problemRepository, testCaseMetadataMongoRepository)
     }
 
     private fun createTestCase(id: Long, problemId: Long): TestCase {
@@ -52,6 +57,7 @@ class TestCaseServiceFindAllTest {
         )
 
         whenever(testCaseRepository.findAllByProblemId(problemId)).thenReturn(testCases)
+        whenever(testCaseMetadataMongoRepository.findByTestCaseIdIn(any())).thenReturn(emptyList())
 
         val result = testCaseService.findAll(problemId)
 

@@ -8,9 +8,12 @@ import me.suhyun.soj.domain.problem.domain.model.TableMetadata
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.exception.ProblemErrorCode
 import me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
+import me.suhyun.soj.domain.problem.infrastructure.mongo.ProblemMetadataDocument
+import me.suhyun.soj.domain.problem.infrastructure.mongo.ProblemMetadataMongoRepository
 import me.suhyun.soj.domain.problem.presentation.request.UpdateProblemRequest
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.global.infrastructure.cache.CacheService
 import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
 import me.suhyun.soj.global.exception.BusinessException
@@ -47,6 +50,12 @@ class ProblemServiceUpdateTest {
     @Mock
     private lateinit var problemSearchService: ProblemSearchService
 
+    @Mock
+    private lateinit var problemMetadataMongoRepository: ProblemMetadataMongoRepository
+
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private val cacheProperties = CacheProperties()
 
     private lateinit var problemService: ProblemService
@@ -69,7 +78,9 @@ class ProblemServiceUpdateTest {
             cacheService,
             cacheProperties,
             problemEventPublisher,
-            problemSearchService
+            problemSearchService,
+            problemMetadataMongoRepository,
+            testCaseMetadataMongoRepository
         )
     }
 
@@ -106,12 +117,13 @@ class ProblemServiceUpdateTest {
                 title = eq(request.title),
                 description = eq(request.description),
                 schemaSql = any(),
-                schemaMetadata = eq(request.schemaMetadata),
                 difficulty = eq(request.difficulty),
                 timeLimit = eq(request.timeLimit),
                 isOrderSensitive = eq(request.isOrderSensitive)
             )
         ).thenReturn(updatedProblem)
+        whenever(problemMetadataMongoRepository.findByProblemId(1L)).thenReturn(null)
+        whenever(problemMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as ProblemMetadataDocument }
 
         problemService.update(1L, request)
 
@@ -120,7 +132,6 @@ class ProblemServiceUpdateTest {
             title = eq(request.title),
             description = eq(request.description),
             schemaSql = any(),
-            schemaMetadata = eq(request.schemaMetadata),
             difficulty = eq(request.difficulty),
             timeLimit = eq(request.timeLimit),
             isOrderSensitive = eq(request.isOrderSensitive)
@@ -160,7 +171,6 @@ class ProblemServiceUpdateTest {
                 title = eq(request.title),
                 description = eq(null),
                 schemaSql = eq(null),
-                schemaMetadata = eq(null),
                 difficulty = eq(null),
                 timeLimit = eq(null),
                 isOrderSensitive = eq(null)
@@ -174,7 +184,6 @@ class ProblemServiceUpdateTest {
             title = eq("Only Title Updated"),
             description = eq(null),
             schemaSql = eq(null),
-            schemaMetadata = eq(null),
             difficulty = eq(null),
             timeLimit = eq(null),
             isOrderSensitive = eq(null)
@@ -191,7 +200,6 @@ class ProblemServiceUpdateTest {
                 title = eq(request.title),
                 description = eq(null),
                 schemaSql = eq(null),
-                schemaMetadata = eq(null),
                 difficulty = eq(null),
                 timeLimit = eq(null),
                 isOrderSensitive = eq(null)

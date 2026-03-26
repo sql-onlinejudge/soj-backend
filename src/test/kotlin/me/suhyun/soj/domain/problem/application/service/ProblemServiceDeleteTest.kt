@@ -4,8 +4,10 @@ import me.suhyun.soj.domain.problem.application.event.ProblemEventPublisher
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.exception.ProblemErrorCode
 import me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
+import me.suhyun.soj.domain.problem.infrastructure.mongo.ProblemMetadataMongoRepository
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.global.infrastructure.cache.CacheService
 import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
 import me.suhyun.soj.global.exception.BusinessException
@@ -39,6 +41,12 @@ class ProblemServiceDeleteTest {
     @Mock
     private lateinit var problemSearchService: ProblemSearchService
 
+    @Mock
+    private lateinit var problemMetadataMongoRepository: ProblemMetadataMongoRepository
+
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private val cacheProperties = CacheProperties()
 
     private lateinit var problemService: ProblemService
@@ -52,7 +60,9 @@ class ProblemServiceDeleteTest {
             cacheService,
             cacheProperties,
             problemEventPublisher,
-            problemSearchService
+            problemSearchService,
+            problemMetadataMongoRepository,
+            testCaseMetadataMongoRepository
         )
     }
 

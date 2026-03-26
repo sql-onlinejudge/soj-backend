@@ -7,6 +7,8 @@ import me.suhyun.soj.domain.problem.domain.model.SchemaMetadata
 import me.suhyun.soj.domain.problem.domain.model.TableMetadata
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
+import me.suhyun.soj.domain.problem.infrastructure.mongo.ProblemMetadataDocument
+import me.suhyun.soj.domain.problem.infrastructure.mongo.ProblemMetadataMongoRepository
 import me.suhyun.soj.domain.problem.presentation.request.CreateProblemRequest
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.model.AnswerMetadata
@@ -16,6 +18,8 @@ import me.suhyun.soj.domain.testcase.domain.model.InitMetadata
 import me.suhyun.soj.domain.testcase.domain.model.InsertStatement
 import me.suhyun.soj.domain.testcase.domain.model.TestCase
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataDocument
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.domain.testcase.presentation.request.CreateTestCaseRequest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -48,6 +52,12 @@ class ProblemServiceCreateTest {
 
     @Mock
     private lateinit var problemSearchService: ProblemSearchService
+
+    @Mock
+    private lateinit var problemMetadataMongoRepository: ProblemMetadataMongoRepository
+
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
 
     private val cacheProperties = CacheProperties()
 
@@ -82,7 +92,9 @@ class ProblemServiceCreateTest {
             cacheService,
             cacheProperties,
             problemEventPublisher,
-            problemSearchService
+            problemSearchService,
+            problemMetadataMongoRepository,
+            testCaseMetadataMongoRepository
         )
     }
 
@@ -122,14 +134,16 @@ class ProblemServiceCreateTest {
                 id = 1L,
                 problemId = 1L,
                 initSql = "INSERT INTO test (id) VALUES (1);",
-                initMetadata = testInitData,
+                initMetadata = null,
                 answer = "id\n1",
-                answerMetadata = testAnswerData,
+                answerMetadata = null,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
                 deletedAt = null
             )
         )
+        whenever(problemMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as ProblemMetadataDocument }
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         problemService.create(request)
 
@@ -179,12 +193,14 @@ class ProblemServiceCreateTest {
                 initSql = null,
                 initMetadata = null,
                 answer = "id\n1",
-                answerMetadata = testAnswerData,
+                answerMetadata = null,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
                 deletedAt = null
             )
         )
+        whenever(problemMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as ProblemMetadataDocument }
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         problemService.create(request)
 

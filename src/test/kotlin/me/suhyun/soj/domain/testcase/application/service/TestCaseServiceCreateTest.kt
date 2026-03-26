@@ -8,6 +8,8 @@ import me.suhyun.soj.domain.testcase.domain.model.InitMetadata
 import me.suhyun.soj.domain.testcase.domain.model.InsertStatement
 import me.suhyun.soj.domain.testcase.domain.model.TestCase
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataDocument
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.domain.testcase.presentation.request.CreateTestCaseRequest
 import me.suhyun.soj.global.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -30,6 +32,9 @@ class TestCaseServiceCreateTest {
     @Mock
     private lateinit var problemRepository: ProblemRepository
 
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private lateinit var testCaseService: TestCaseService
 
     private val testInitData = InitMetadata(
@@ -45,7 +50,7 @@ class TestCaseServiceCreateTest {
 
     @BeforeEach
     fun setUp() {
-        testCaseService = TestCaseService(testCaseRepository, problemRepository)
+        testCaseService = TestCaseService(testCaseRepository, problemRepository, testCaseMetadataMongoRepository)
     }
 
     private fun createProblem(id: Long): Problem {
@@ -81,14 +86,15 @@ class TestCaseServiceCreateTest {
                 id = 1L,
                 problemId = problemId,
                 initSql = "INSERT INTO test (id) VALUES (1);",
-                initMetadata = request.initData,
+                initMetadata = null,
                 answer = "id\n1",
-                answerMetadata = request.answerData,
+                answerMetadata = null,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
                 deletedAt = null
             )
         )
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         testCaseService.create(problemId, request)
 
@@ -113,12 +119,13 @@ class TestCaseServiceCreateTest {
                 initSql = null,
                 initMetadata = null,
                 answer = "id\n1",
-                answerMetadata = request.answerData,
+                answerMetadata = null,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
                 deletedAt = null
             )
         )
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         testCaseService.create(problemId, request)
 

@@ -7,6 +7,8 @@ import me.suhyun.soj.domain.testcase.domain.model.InsertStatement
 import me.suhyun.soj.domain.testcase.domain.model.TestCase
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
 import me.suhyun.soj.domain.testcase.exception.TestCaseErrorCode
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataDocument
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.domain.testcase.presentation.request.UpdateTestCaseRequest
 import me.suhyun.soj.global.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -30,6 +32,9 @@ class TestCaseServiceUpdateTest {
     @Mock
     private lateinit var problemRepository: ProblemRepository
 
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private lateinit var testCaseService: TestCaseService
 
     private val testInitData = InitMetadata(
@@ -45,7 +50,7 @@ class TestCaseServiceUpdateTest {
 
     @BeforeEach
     fun setUp() {
-        testCaseService = TestCaseService(testCaseRepository, problemRepository)
+        testCaseService = TestCaseService(testCaseRepository, problemRepository, testCaseMetadataMongoRepository)
     }
 
     private fun createTestCase(id: Long, problemId: Long): TestCase {
@@ -72,10 +77,12 @@ class TestCaseServiceUpdateTest {
         )
 
         whenever(testCaseRepository.findById(testcaseId)).thenReturn(createTestCase(testcaseId, problemId))
+        whenever(testCaseMetadataMongoRepository.findByTestCaseId(testcaseId)).thenReturn(null)
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         testCaseService.update(problemId, testcaseId, request)
 
-        verify(testCaseRepository).update(eq(testcaseId), any(), eq(request.initData), any(), eq(request.answerData), eq(request.isVisible))
+        verify(testCaseRepository).update(eq(testcaseId), any(), any(), eq(request.isVisible))
     }
 
     @Test
@@ -88,10 +95,12 @@ class TestCaseServiceUpdateTest {
         )
 
         whenever(testCaseRepository.findById(testcaseId)).thenReturn(createTestCase(testcaseId, problemId))
+        whenever(testCaseMetadataMongoRepository.findByTestCaseId(testcaseId)).thenReturn(null)
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         testCaseService.update(problemId, testcaseId, request)
 
-        verify(testCaseRepository).update(eq(testcaseId), any(), eq(testInitData), eq(null), eq(null), eq(null))
+        verify(testCaseRepository).update(eq(testcaseId), any(), eq(null), eq(null))
     }
 
     @Test
@@ -104,10 +113,12 @@ class TestCaseServiceUpdateTest {
         )
 
         whenever(testCaseRepository.findById(testcaseId)).thenReturn(createTestCase(testcaseId, problemId))
+        whenever(testCaseMetadataMongoRepository.findByTestCaseId(testcaseId)).thenReturn(null)
+        whenever(testCaseMetadataMongoRepository.save(any())).thenAnswer { it.arguments[0] as TestCaseMetadataDocument }
 
         testCaseService.update(problemId, testcaseId, request)
 
-        verify(testCaseRepository).update(eq(testcaseId), eq(null), eq(null), any(), eq(testAnswerData), eq(null))
+        verify(testCaseRepository).update(eq(testcaseId), eq(null), any(), eq(null))
     }
 
     @Test

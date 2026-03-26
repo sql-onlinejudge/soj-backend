@@ -5,8 +5,10 @@ import me.suhyun.soj.domain.problem.domain.model.Problem
 import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
+import me.suhyun.soj.domain.problem.infrastructure.mongo.ProblemMetadataMongoRepository
 import me.suhyun.soj.domain.submission.domain.repository.SubmissionRepository
 import me.suhyun.soj.domain.testcase.domain.repository.TestCaseRepository
+import me.suhyun.soj.domain.testcase.infrastructure.mongo.TestCaseMetadataMongoRepository
 import me.suhyun.soj.global.infrastructure.cache.CacheService
 import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
 import org.assertj.core.api.Assertions.assertThat
@@ -44,6 +46,12 @@ class ProblemServiceFindAllTest {
     @Mock
     private lateinit var problemSearchService: ProblemSearchService
 
+    @Mock
+    private lateinit var problemMetadataMongoRepository: ProblemMetadataMongoRepository
+
+    @Mock
+    private lateinit var testCaseMetadataMongoRepository: TestCaseMetadataMongoRepository
+
     private val cacheProperties = CacheProperties()
 
     private lateinit var problemService: ProblemService
@@ -59,7 +67,9 @@ class ProblemServiceFindAllTest {
             cacheService,
             cacheProperties,
             problemEventPublisher,
-            problemSearchService
+            problemSearchService,
+            problemMetadataMongoRepository,
+            testCaseMetadataMongoRepository
         )
         SecurityContextHolder.getContext().authentication =
             UsernamePasswordAuthenticationToken(userId, null, listOf(SimpleGrantedAuthority("ROLE_USER")))
