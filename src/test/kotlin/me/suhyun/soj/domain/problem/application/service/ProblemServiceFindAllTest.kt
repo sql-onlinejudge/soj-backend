@@ -2,6 +2,7 @@ package me.suhyun.soj.domain.problem.application.service
 
 import me.suhyun.soj.domain.problem.application.event.ProblemEventPublisher
 import me.suhyun.soj.domain.problem.domain.model.Problem
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.infrastructure.elasticsearch.ProblemSearchService
@@ -92,6 +93,7 @@ class ProblemServiceFindAllTest {
             isOrderSensitive = false,
             solvedCount = 0,
             submissionCount = 0,
+            category = ProblemCategory.SQL,
             createdAt = LocalDateTime.now(),
             updatedAt = null,
             deletedAt = null

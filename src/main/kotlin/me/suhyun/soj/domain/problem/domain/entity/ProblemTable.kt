@@ -1,5 +1,6 @@
 package me.suhyun.soj.domain.problem.domain.entity
 
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import me.suhyun.soj.global.common.entity.BaseTable
 
 @Suppress("MagicNumber")
@@ -12,4 +13,5 @@ object ProblemTable : BaseTable("problems") {
     val isOrderSensitive = bool("is_order_sensitive").default(false)
     val solvedCount = integer("solved_count").default(0)
     val submissionCount = integer("submitted_count").default(0)
+    val category = enumerationByName<ProblemCategory>("category", 20).default(ProblemCategory.SQL)
 }

@@ -1,6 +1,7 @@
 package me.suhyun.soj.domain.problem.domain.model
 
 import me.suhyun.soj.domain.problem.domain.entity.ProblemEntity
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import java.time.LocalDateTime
 
 data class Problem(
@@ -14,6 +15,7 @@ data class Problem(
     val isOrderSensitive: Boolean,
     val solvedCount: Int,
     val submissionCount: Int,
+    val category: ProblemCategory,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime?,
     val deletedAt: LocalDateTime?
@@ -30,6 +32,7 @@ data class Problem(
             isOrderSensitive = entity.isOrderSensitive,
             solvedCount = entity.solvedCount,
             submissionCount = entity.submissionCount,
+            category = entity.category,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
             deletedAt = entity.deletedAt

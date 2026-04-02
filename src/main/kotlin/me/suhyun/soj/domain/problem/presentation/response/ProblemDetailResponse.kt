@@ -2,6 +2,7 @@ package me.suhyun.soj.domain.problem.presentation.response
 
 import me.suhyun.soj.domain.problem.domain.model.Problem
 import me.suhyun.soj.domain.problem.domain.model.SchemaMetadata
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import java.time.LocalDateTime
 
@@ -16,6 +17,7 @@ data class ProblemDetailResponse(
     val isOrderSensitive: Boolean,
     val solvedCount: Int,
     val submissionCount: Int,
+    val category: ProblemCategory,
     val trialStatus: TrialStatus?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime?
@@ -33,6 +35,7 @@ data class ProblemDetailResponse(
                 isOrderSensitive = problem.isOrderSensitive,
                 solvedCount = problem.solvedCount,
                 submissionCount = problem.submissionCount,
+                category = problem.category,
                 trialStatus = trialStatus,
                 createdAt = problem.createdAt,
                 updatedAt = problem.updatedAt

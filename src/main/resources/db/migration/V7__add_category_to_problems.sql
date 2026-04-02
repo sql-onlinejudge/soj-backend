@@ -1,0 +1,2 @@
+ALTER TABLE problems
+    ADD COLUMN category VARCHAR(20) NOT NULL DEFAULT 'SQL';

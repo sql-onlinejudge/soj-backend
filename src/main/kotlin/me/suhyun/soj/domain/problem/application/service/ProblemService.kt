@@ -57,6 +57,7 @@ class ProblemService(
                 isOrderSensitive = request.isOrderSensitive,
                 solvedCount = 0,
                 submissionCount = 0,
+                category = request.category,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
                 deletedAt = null
@@ -183,7 +184,8 @@ class ProblemService(
             schemaSql = schemaSql,
             difficulty = request.difficulty,
             timeLimit = request.timeLimit,
-            isOrderSensitive = request.isOrderSensitive
+            isOrderSensitive = request.isOrderSensitive,
+            category = request.category
         ) ?: throw BusinessException(ProblemErrorCode.PROBLEM_NOT_FOUND)
 
         request.schemaMetadata?.let { metadata ->

@@ -15,6 +15,7 @@ class ProblemEntity(id: EntityID<Long>) : LongEntity(id) {
     var isOrderSensitive by ProblemTable.isOrderSensitive
     var solvedCount by ProblemTable.solvedCount
     var submissionCount by ProblemTable.submissionCount
+    var category by ProblemTable.category
     var createdAt by ProblemTable.createdAt
     var updatedAt by ProblemTable.updatedAt
     var deletedAt by ProblemTable.deletedAt

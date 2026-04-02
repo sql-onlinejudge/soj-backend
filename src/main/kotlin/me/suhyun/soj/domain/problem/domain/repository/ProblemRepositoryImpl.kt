@@ -3,6 +3,7 @@ package me.suhyun.soj.domain.problem.domain.repository
 import me.suhyun.soj.domain.problem.domain.entity.ProblemEntity
 import me.suhyun.soj.domain.problem.domain.entity.ProblemTable
 import me.suhyun.soj.domain.problem.domain.model.Problem
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import me.suhyun.soj.domain.problem.domain.model.enums.TrialStatus
 import me.suhyun.soj.domain.submission.domain.entity.SubmissionTable
 import me.suhyun.soj.domain.submission.domain.model.enums.SubmissionVerdict
@@ -31,6 +32,7 @@ class ProblemRepositoryImpl : ProblemRepository {
             this.difficulty = problem.difficulty
             this.timeLimit = problem.timeLimit
             this.isOrderSensitive = problem.isOrderSensitive
+            this.category = problem.category
             this.createdAt = LocalDateTime.now()
         }
         return Problem.from(entity)
@@ -102,7 +104,8 @@ class ProblemRepositoryImpl : ProblemRepository {
         schemaSql: String?,
         difficulty: Int?,
         timeLimit: Int?,
-        isOrderSensitive: Boolean?
+        isOrderSensitive: Boolean?,
+        category: ProblemCategory?
     ): Problem? {
         val entity = ProblemEntity.findById(id)
             ?.takeIf { it.deletedAt == null }
@@ -114,6 +117,7 @@ class ProblemRepositoryImpl : ProblemRepository {
         difficulty?.let { entity.difficulty = it }
         timeLimit?.let { entity.timeLimit = it }
         isOrderSensitive?.let { entity.isOrderSensitive = it }
+        category?.let { entity.category = it }
         entity.updatedAt = LocalDateTime.now()
 
         return Problem.from(entity)

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import me.suhyun.soj.domain.problem.domain.model.SchemaMetadata
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import me.suhyun.soj.domain.testcase.presentation.request.CreateTestCaseRequest
 
 data class CreateProblemRequest(
@@ -29,6 +30,8 @@ data class CreateProblemRequest(
     val timeLimit: Int,
 
     val isOrderSensitive: Boolean = false,
+
+    val category: ProblemCategory = ProblemCategory.SQL,
 
     @field:NotEmpty
     val testcases: List<CreateTestCaseRequest>

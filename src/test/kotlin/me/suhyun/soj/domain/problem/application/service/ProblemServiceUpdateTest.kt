@@ -4,6 +4,7 @@ import me.suhyun.soj.domain.problem.application.event.ProblemEventPublisher
 import me.suhyun.soj.domain.problem.domain.model.ColumnMetadata
 import me.suhyun.soj.domain.problem.domain.model.Problem
 import me.suhyun.soj.domain.problem.domain.model.SchemaMetadata
+import me.suhyun.soj.domain.problem.domain.model.enums.ProblemCategory
 import me.suhyun.soj.domain.problem.domain.model.TableMetadata
 import me.suhyun.soj.domain.problem.domain.repository.ProblemRepository
 import me.suhyun.soj.domain.problem.exception.ProblemErrorCode
@@ -106,6 +107,7 @@ class ProblemServiceUpdateTest {
             isOrderSensitive = true,
             solvedCount = 0,
             submissionCount = 0,
+            category = ProblemCategory.SQL,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deletedAt = null
@@ -119,7 +121,8 @@ class ProblemServiceUpdateTest {
                 schemaSql = any(),
                 difficulty = eq(request.difficulty),
                 timeLimit = eq(request.timeLimit),
-                isOrderSensitive = eq(request.isOrderSensitive)
+                isOrderSensitive = eq(request.isOrderSensitive),
+                category = eq(request.category)
             )
         ).thenReturn(updatedProblem)
         whenever(problemMetadataMongoRepository.findByProblemId(1L)).thenReturn(null)
@@ -134,7 +137,8 @@ class ProblemServiceUpdateTest {
             schemaSql = any(),
             difficulty = eq(request.difficulty),
             timeLimit = eq(request.timeLimit),
-            isOrderSensitive = eq(request.isOrderSensitive)
+            isOrderSensitive = eq(request.isOrderSensitive),
+            category = eq(request.category)
         )
     }
 
@@ -160,6 +164,7 @@ class ProblemServiceUpdateTest {
             isOrderSensitive = false,
             solvedCount = 0,
             submissionCount = 0,
+            category = ProblemCategory.SQL,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deletedAt = null
@@ -173,7 +178,8 @@ class ProblemServiceUpdateTest {
                 schemaSql = eq(null),
                 difficulty = eq(null),
                 timeLimit = eq(null),
-                isOrderSensitive = eq(null)
+                isOrderSensitive = eq(null),
+                category = eq(null)
             )
         ).thenReturn(updatedProblem)
 
@@ -186,7 +192,8 @@ class ProblemServiceUpdateTest {
             schemaSql = eq(null),
             difficulty = eq(null),
             timeLimit = eq(null),
-            isOrderSensitive = eq(null)
+            isOrderSensitive = eq(null),
+            category = eq(null)
         )
     }
 
@@ -202,7 +209,8 @@ class ProblemServiceUpdateTest {
                 schemaSql = eq(null),
                 difficulty = eq(null),
                 timeLimit = eq(null),
-                isOrderSensitive = eq(null)
+                isOrderSensitive = eq(null),
+                category = eq(null)
             )
         ).thenReturn(null)
 
