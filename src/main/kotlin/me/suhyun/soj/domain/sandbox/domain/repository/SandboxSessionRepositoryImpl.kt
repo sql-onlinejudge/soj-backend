@@ -52,4 +52,11 @@ class SandboxSessionRepositoryImpl : SandboxSessionRepository {
         entity.status = status
         entity.updatedAt = LocalDateTime.now()
     }
+
+    override fun reactivate(id: Long, expiresAt: LocalDateTime) {
+        val entity = SandboxSessionEntity.findById(id) ?: return
+        entity.status = SandboxStatus.ACTIVE
+        entity.expiresAt = expiresAt
+        entity.updatedAt = LocalDateTime.now()
+    }
 }

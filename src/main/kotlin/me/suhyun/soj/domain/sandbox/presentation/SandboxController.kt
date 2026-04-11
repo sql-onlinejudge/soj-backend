@@ -2,6 +2,7 @@ package me.suhyun.soj.domain.sandbox.presentation
 
 import me.suhyun.soj.domain.sandbox.application.service.SandboxCloseService
 import me.suhyun.soj.domain.sandbox.application.service.SandboxQueryService
+import me.suhyun.soj.domain.sandbox.application.service.SandboxReactivateService
 import me.suhyun.soj.domain.sandbox.application.service.SandboxSetupService
 import me.suhyun.soj.domain.sandbox.presentation.request.SandboxQueryRequest
 import me.suhyun.soj.domain.sandbox.presentation.response.SandboxQueryResponse
@@ -28,7 +29,8 @@ import java.util.UUID
 class SandboxController(
     private val sandboxSetupService: SandboxSetupService,
     private val sandboxQueryService: SandboxQueryService,
-    private val sandboxCloseService: SandboxCloseService
+    private val sandboxCloseService: SandboxCloseService,
+    private val sandboxReactivateService: SandboxReactivateService
 ) {
 
     @PostMapping("/setup", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -65,5 +67,11 @@ class SandboxController(
     fun closeSession(@PathVariable sessionKey: String) {
         val userId = SecurityContextHolder.getContext().authentication?.principal as UUID
         sandboxCloseService.close(sessionKey, userId)
+    }
+
+    @PostMapping("/{sessionKey}/reactivate")
+    fun reactivate(@PathVariable sessionKey: String): SandboxSetupResponse {
+        val userId = SecurityContextHolder.getContext().authentication?.principal as UUID
+        return sandboxReactivateService.reactivate(sessionKey, userId)
     }
 }
