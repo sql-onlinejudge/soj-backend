@@ -63,10 +63,19 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: false
 
+# Anthropic
+anthropic:
+  api-key: ${ANTHROPIC_API_KEY:}
+  base-url: https://api.anthropic.com
+  api-version: "2023-06-01"
+
 # Sandbox MySQL
 sandbox:
   pool:
     size: 10
+  session:
+    ttl: PT1H
+    query-timeout-ms: 5000
   datasource:
     admin:
       driver-class-name: com.mysql.cj.jdbc.Driver
