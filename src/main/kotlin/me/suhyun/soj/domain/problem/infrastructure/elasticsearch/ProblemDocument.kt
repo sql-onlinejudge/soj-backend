@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Setting
 import java.time.Instant
 import java.time.ZoneOffset
 
-@Document(indexName = "problems")
+@Document(indexName = "problems", createIndex = false)
 @Setting(settingPath = "/elasticsearch/problem-index-settings.json")
 data class ProblemDocument(
     @Id
