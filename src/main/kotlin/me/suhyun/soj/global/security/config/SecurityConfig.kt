@@ -100,6 +100,7 @@ class SecurityConfig(
                 auth.requestMatchers(HttpMethod.POST, "/payments/checkout").authenticated()
                 auth.requestMatchers(HttpMethod.GET, "/payments/**").permitAll()
                 auth.requestMatchers(HttpMethod.GET, "/subscriptions/me").authenticated()
+                auth.requestMatchers(HttpMethod.DELETE, "/subscriptions/me").authenticated()
                 auth.requestMatchers(HttpMethod.POST, "/problems/*/submissions/*/feedback").authenticated()
                 auth.requestMatchers("/admin/**").authenticated()
                 auth.anyRequest().authenticated()

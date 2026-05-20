@@ -3,6 +3,8 @@ package me.suhyun.soj.domain.subscription.application.service
 import me.suhyun.soj.domain.subscription.domain.model.Subscription
 import me.suhyun.soj.domain.subscription.domain.model.enums.SubscriptionStatus
 import me.suhyun.soj.domain.subscription.domain.repository.SubscriptionRepository
+import me.suhyun.soj.domain.subscription.exception.SubscriptionErrorCode
+import me.suhyun.soj.global.exception.BusinessException
 import me.suhyun.soj.global.infrastructure.cache.CacheKeys
 import me.suhyun.soj.global.infrastructure.cache.CacheService
 import me.suhyun.soj.global.infrastructure.cache.config.CacheProperties
@@ -20,15 +22,23 @@ class SubscriptionService(
 ) {
 
     fun findActiveByUserId(userId: UUID): Subscription? =
-        subscriptionRepository.findActiveByUserId(userId)
+        subscriptionRepository.findValidByUserId(userId)
 
     fun isActive(userId: UUID): Boolean {
         val cached = cacheService.get(CacheKeys.Subscription.byUserId(userId), Boolean::class.java)
         if (cached != null) return cached
 
-        val active = subscriptionRepository.findActiveByUserId(userId) != null
+        val active = subscriptionRepository.findValidByUserId(userId) != null
         cacheService.put(CacheKeys.Subscription.byUserId(userId), active, cacheProperties.ttl.subscription)
         return active
+    }
+
+    @Transactional
+    fun cancel(userId: UUID) {
+        val subscription = subscriptionRepository.findActiveByUserId(userId)
+            ?: throw BusinessException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND)
+        subscriptionRepository.updateStatus(subscription.id!!, SubscriptionStatus.CANCELLED)
+        cacheService.evict(CacheKeys.Subscription.byUserId(userId))
     }
 
     @Transactional
