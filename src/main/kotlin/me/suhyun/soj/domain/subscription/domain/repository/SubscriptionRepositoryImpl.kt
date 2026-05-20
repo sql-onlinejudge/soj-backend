@@ -4,6 +4,7 @@ import me.suhyun.soj.domain.subscription.domain.entity.SubscriptionEntity
 import me.suhyun.soj.domain.subscription.domain.entity.SubscriptionTable
 import me.suhyun.soj.domain.subscription.domain.model.Subscription
 import me.suhyun.soj.domain.subscription.domain.model.enums.SubscriptionStatus
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
@@ -32,7 +33,20 @@ class SubscriptionRepositoryImpl : SubscriptionRepository {
                 (SubscriptionTable.expiresAt greater LocalDateTime.now()) and
                 SubscriptionTable.deletedAt.isNull()
             }
-            .orderBy(SubscriptionTable.expiresAt to org.jetbrains.exposed.sql.SortOrder.DESC)
+            .orderBy(SubscriptionTable.expiresAt to SortOrder.DESC)
+            .firstOrNull()
+            ?.let { Subscription.from(SubscriptionEntity.wrapRow(it)) }
+    }
+
+    override fun findValidByUserId(userId: UUID): Subscription? {
+        return SubscriptionTable.selectAll()
+            .where {
+                (SubscriptionTable.userId eq userId.toString()) and
+                (SubscriptionTable.status inList listOf(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED)) and
+                (SubscriptionTable.expiresAt greater LocalDateTime.now()) and
+                SubscriptionTable.deletedAt.isNull()
+            }
+            .orderBy(SubscriptionTable.expiresAt to SortOrder.DESC)
             .firstOrNull()
             ?.let { Subscription.from(SubscriptionEntity.wrapRow(it)) }
     }
