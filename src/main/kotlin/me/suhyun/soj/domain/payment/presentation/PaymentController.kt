@@ -3,6 +3,7 @@ package me.suhyun.soj.domain.payment.presentation
 import jakarta.servlet.http.HttpServletResponse
 import me.suhyun.soj.domain.payment.application.service.PaymentService
 import me.suhyun.soj.domain.payment.presentation.response.CheckoutResponse
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,7 +15,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/payments")
 class PaymentController(
-    private val paymentService: PaymentService
+    private val paymentService: PaymentService,
+    @Value("\${app.frontend-url}") private val frontendUrl: String
 ) {
 
     @PostMapping("/checkout")
@@ -31,7 +33,7 @@ class PaymentController(
         response: HttpServletResponse
     ) {
         paymentService.confirm(paymentKey, orderId, amount)
-        response.sendRedirect("/?payment=success")
+        response.sendRedirect("$frontendUrl?payment=success")
     }
 
     @GetMapping("/fail")
@@ -41,6 +43,6 @@ class PaymentController(
         response: HttpServletResponse
     ) {
         paymentService.fail(orderId)
-        response.sendRedirect("/?payment=fail")
+        response.sendRedirect("$frontendUrl?payment=fail")
     }
 }
