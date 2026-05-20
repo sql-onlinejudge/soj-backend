@@ -3,6 +3,7 @@ package me.suhyun.soj.domain.payment.application.service
 import me.suhyun.soj.domain.payment.domain.model.Payment
 import me.suhyun.soj.domain.payment.domain.model.enums.PaymentStatus
 import me.suhyun.soj.domain.payment.domain.repository.PaymentRepository
+import me.suhyun.soj.domain.payment.domain.repository.SubscriptionPlanRepository
 import me.suhyun.soj.domain.payment.exception.PaymentErrorCode
 import me.suhyun.soj.domain.payment.infrastructure.toss.TossPaymentsClient
 import me.suhyun.soj.domain.payment.infrastructure.toss.TossPaymentsProperties
@@ -18,15 +19,18 @@ import java.util.UUID
 @Transactional
 class PaymentService(
     private val paymentRepository: PaymentRepository,
+    private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val subscriptionService: SubscriptionService,
     private val tossPaymentsClient: TossPaymentsClient,
     private val tossProperties: TossPaymentsProperties
 ) {
     companion object {
-        private const val PREMIUM_PRICE = 9900
+        private const val PREMIUM_PLAN = "PREMIUM_MONTHLY"
     }
 
     fun checkout(userId: UUID): CheckoutResponse {
+        val plan = subscriptionPlanRepository.findActiveByName(PREMIUM_PLAN)
+            ?: throw BusinessException(PaymentErrorCode.SUBSCRIPTION_PLAN_NOT_FOUND)
         val orderId = UUID.randomUUID().toString()
         paymentRepository.save(
             Payment(
@@ -34,7 +38,7 @@ class PaymentService(
                 userId = userId,
                 orderId = orderId,
                 paymentKey = null,
-                amount = PREMIUM_PRICE,
+                amount = plan.price,
                 status = PaymentStatus.PENDING,
                 subscriptionId = null,
                 createdAt = LocalDateTime.now(),
@@ -43,7 +47,7 @@ class PaymentService(
         )
         return CheckoutResponse(
             orderId = orderId,
-            amount = PREMIUM_PRICE,
+            amount = plan.price,
             clientKey = tossProperties.clientKey,
             successUrl = tossProperties.successUrl,
             failUrl = tossProperties.failUrl
