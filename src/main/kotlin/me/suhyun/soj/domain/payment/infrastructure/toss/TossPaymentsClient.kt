@@ -4,7 +4,6 @@ import me.suhyun.soj.domain.payment.exception.PaymentErrorCode
 import me.suhyun.soj.global.exception.BusinessException
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.util.Base64
 
 @Component
@@ -27,7 +26,7 @@ class TossPaymentsClient(private val properties: TossPaymentsProperties) {
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .block()
-        } catch (e: WebClientResponseException) {
+        } catch (e: Exception) {
             throw BusinessException(PaymentErrorCode.PAYMENT_CONFIRM_FAILED)
         }
     }

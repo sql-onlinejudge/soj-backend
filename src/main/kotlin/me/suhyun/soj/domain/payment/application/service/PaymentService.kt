@@ -58,6 +58,8 @@ class PaymentService(
         val payment = paymentRepository.findByOrderId(orderId)
             ?: throw BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND)
 
+        if (payment.status == PaymentStatus.DONE) return
+
         if (payment.amount != amount) {
             throw BusinessException(PaymentErrorCode.PAYMENT_AMOUNT_MISMATCH)
         }
