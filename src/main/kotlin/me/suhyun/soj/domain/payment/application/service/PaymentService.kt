@@ -77,6 +77,7 @@ class PaymentService(
 
     fun fail(orderId: String) {
         val payment = paymentRepository.findByOrderId(orderId) ?: return
+        if (payment.status == PaymentStatus.DONE) return
         paymentRepository.updateStatus(payment.id!!, PaymentStatus.FAILED)
     }
 }
