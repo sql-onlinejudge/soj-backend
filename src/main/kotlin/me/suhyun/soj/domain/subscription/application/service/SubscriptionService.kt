@@ -52,7 +52,8 @@ class SubscriptionService(
                 startedAt = now,
                 expiresAt = now.plusMonths(months.toLong()),
                 createdAt = now,
-                updatedAt = null
+                updatedAt = null,
+                deletedAt = null
             )
         )
         cacheService.evict(CacheKeys.Subscription.byUserId(userId))

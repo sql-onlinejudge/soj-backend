@@ -12,7 +12,8 @@ data class Subscription(
     val startedAt: LocalDateTime,
     val expiresAt: LocalDateTime,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
+    val deletedAt: LocalDateTime?
 ) {
     companion object {
         fun from(entity: SubscriptionEntity) = Subscription(
@@ -22,7 +23,8 @@ data class Subscription(
             startedAt = entity.startedAt,
             expiresAt = entity.expiresAt,
             createdAt = entity.createdAt,
-            updatedAt = entity.updatedAt
+            updatedAt = entity.updatedAt,
+            deletedAt = entity.deletedAt
         )
     }
 }
